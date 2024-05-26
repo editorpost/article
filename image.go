@@ -11,7 +11,7 @@ type Image struct {
 
 	// ID is the unique identifier of the image.
 	// It is stable enough to be used as a key in a storage system.
-	ID string `json:"id" validate:"required"`
+	ID string `json:"id" validate:"required,max=36"`
 
 	// URL is the URL of the image.
 	// This field is required and should be a valid URL.
@@ -34,6 +34,14 @@ type Image struct {
 	Caption string `json:"caption,omitempty" validate:"max=500"`
 }
 
+// NewImage creates a new Image with a random UUID.
+func NewImage(url string) *Image {
+	return &Image{
+		ID:  uuid.New().String(),
+		URL: url,
+	}
+}
+
 // Normalize validates and trims the fields of the Image.
 func (i *Image) Normalize() {
 
@@ -41,6 +49,7 @@ func (i *Image) Normalize() {
 		i.ID = uuid.New().String()
 	}
 
+	i.ID = TrimToMaxLen(i.ID, 36)
 	i.URL = TrimToMaxLen(i.URL, 4096)
 	i.AltText = TrimToMaxLen(i.AltText, 255)
 	i.Caption = TrimToMaxLen(i.Caption, 500)

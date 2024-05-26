@@ -54,6 +54,7 @@ func TestSocialProfileConversions(t *testing.T) {
 		{
 			name: "Invalid URL",
 			inputMap: map[string]any{
+				"id":       "123e4567-e89b-12d3-a456-426614174000",
 				"platform": "Twitter",
 				"url":      "invalid-url",
 			},
@@ -63,6 +64,7 @@ func TestSocialProfileConversions(t *testing.T) {
 		{
 			name: "Missing Required Fields",
 			inputMap: map[string]any{
+				"id":       "123e4567-e89b-12d3-a456-426614174000",
 				"platform": "Twitter",
 			},
 			expectedSocialProfile: nil,

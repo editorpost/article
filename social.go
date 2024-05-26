@@ -22,6 +22,7 @@ func NewSocialProfileFromMap(m map[string]any) (*SocialProfile, error) {
 
 // SocialProfile represents a social media profile of an author.
 type SocialProfile struct {
+
 	// Platform is the platform of the social profile (e.g., Twitter, Facebook).
 	// This field is required and should be between 1 and 50 characters long.
 	Platform string `json:"platform" validate:"max=255"`

@@ -47,6 +47,7 @@ func TestFullInvariantArticle(t *testing.T) {
 	expected.Excerpt = gofakeit.Sentence(10)
 	expected.Images = []article.Image{
 		{
+			ID:      gofakeit.UUID(),
 			URL:     gofakeit.URL(),
 			AltText: gofakeit.Sentence(5),
 			Width:   gofakeit.Number(800, 1920),
@@ -56,6 +57,7 @@ func TestFullInvariantArticle(t *testing.T) {
 	}
 	expected.Videos = []article.Video{
 		{
+			ID:        gofakeit.UUID(),
 			URL:       gofakeit.URL(),
 			EmbedCode: "<iframe src='" + gofakeit.URL() + "'></iframe>",
 			Caption:   gofakeit.Sentence(10),
@@ -63,6 +65,7 @@ func TestFullInvariantArticle(t *testing.T) {
 	}
 	expected.Quotes = []article.Quote{
 		{
+			ID:       gofakeit.UUID(),
 			Text:     gofakeit.Sentence(15),
 			Author:   gofakeit.Name(),
 			Source:   gofakeit.URL(),
@@ -83,7 +86,6 @@ func TestFullInvariantArticle(t *testing.T) {
 
 	got, err := article.NewArticleFromMap(expected.Map())
 	require.NoError(t, err)
-
 	assert.Equal(t, expected, got)
 }
 

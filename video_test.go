@@ -43,11 +43,13 @@ func TestVideoConversions(t *testing.T) {
 		{
 			name: "Valid Video",
 			inputMap: map[string]any{
+				"id":         "123e4567-e89b-12d3-a456-426614174000",
 				"url":        "https://example.com/video.mp4",
 				"embed_code": "<iframe src='https://example.com/video'></iframe>",
 				"caption":    "An example caption",
 			},
 			expectedVideo: &article.Video{
+				ID:        "123e4567-e89b-12d3-a456-426614174000",
 				URL:       "https://example.com/video.mp4",
 				EmbedCode: "<iframe src='https://example.com/video'></iframe>",
 				Caption:   "An example caption",
@@ -57,6 +59,7 @@ func TestVideoConversions(t *testing.T) {
 		{
 			name: "Invalid URL",
 			inputMap: map[string]any{
+				"id":         "123e4567-e89b-12d3-a456-426614174000",
 				"url":        "invalid-url",
 				"embed_code": "<iframe src='https://example.com/video'></iframe>",
 				"caption":    "An example caption",

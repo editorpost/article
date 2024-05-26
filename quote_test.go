@@ -46,12 +46,14 @@ func TestQuoteConversions(t *testing.T) {
 		{
 			name: "Valid Quote",
 			inputMap: map[string]any{
+				"id":       "123e4567-e89b-12d3-a456-426614174000",
 				"text":     "This is a quote",
 				"author":   "John Doe",
 				"source":   "https://example.com",
 				"platform": "Twitter",
 			},
 			expectedQuote: &article.Quote{
+				ID:       "123e4567-e89b-12d3-a456-426614174000",
 				Text:     "This is a quote",
 				Author:   "John Doe",
 				Source:   "https://example.com",
