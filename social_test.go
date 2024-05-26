@@ -12,7 +12,7 @@ import (
 )
 
 func TestSocialProfileNormalize(t *testing.T) {
-	sp := &article.SocialProfile{
+	sp := &article.Social{
 		Platform: "  " + gofakeit.Word() + "  ",
 		URL:      "  " + gofakeit.URL() + "  ",
 	}
@@ -24,11 +24,11 @@ func TestSocialProfileNormalize(t *testing.T) {
 	assert.Equal(t, strings.TrimSpace(sp.URL), sp.URL)
 }
 
-// TestSocialProfileConversions is a table-driven test for the SocialProfile struct.
-// It verifies the conversion of map data to SocialProfile struct, the validation process, and handling of zero-value fields.
+// TestSocialProfileConversions is a table-driven test for the Social struct.
+// It verifies the conversion of map data to Social struct, the validation process, and handling of zero-value fields.
 //
 // Explanation of test cases:
-// - Valid SocialProfile: Ensures that valid data is correctly converted into a SocialProfile struct without errors.
+// - Valid Social: Ensures that valid data is correctly converted into a Social struct without errors.
 // - Invalid URL: Ensures that an invalid URL triggers a validation error.
 // - Missing Required Fields: Ensures that missing mandatory fields trigger a validation error. Specifically, the 'url' field is required.
 // - Zero Value Fields: Ensures that empty field values are handled correctly and trigger a validation error.
@@ -36,17 +36,17 @@ func TestSocialProfileConversions(t *testing.T) {
 	tests := []struct {
 		name                  string
 		inputMap              map[string]any
-		expectedSocialProfile *article.SocialProfile
+		expectedSocialProfile *article.Social
 		expectError           bool
 	}{
 		{
-			name: "Valid SocialProfile",
+			name: "Valid Social",
 			inputMap: map[string]any{
 				"id":       "123e4567-e89b-12d3-a456-426614174000",
 				"platform": "Twitter",
 				"url":      "https://twitter.com/example",
 			},
-			expectedSocialProfile: &article.SocialProfile{
+			expectedSocialProfile: &article.Social{
 				ID:       "123e4567-e89b-12d3-a456-426614174000",
 				Platform: "Twitter",
 				URL:      "https://twitter.com/example",
@@ -78,7 +78,7 @@ func TestSocialProfileConversions(t *testing.T) {
 				"platform": "",
 				"url":      "",
 			},
-			expectedSocialProfile: &article.SocialProfile{
+			expectedSocialProfile: &article.Social{
 				Platform: "",
 				URL:      "",
 			},

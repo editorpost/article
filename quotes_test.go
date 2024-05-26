@@ -19,7 +19,7 @@ func fakeQuote() *article.Quote {
 }
 
 func TestNewQuotesStrict(t *testing.T) {
-	t.Run("valid quotes", func(t *testing.T) {
+	t.Run("valid items", func(t *testing.T) {
 		quote1 := fakeQuote()
 		quote2 := fakeQuote()
 		quotes, err := article.NewQuotesStrict(quote1, quote2)
@@ -27,7 +27,7 @@ func TestNewQuotesStrict(t *testing.T) {
 		assert.Equal(t, 2, quotes.Len())
 	})
 
-	t.Run("invalid quotes", func(t *testing.T) {
+	t.Run("invalid items", func(t *testing.T) {
 		quote1 := fakeQuote()
 		quote2 := &article.Quote{ID: "", Text: ""}
 		quotes, err := article.NewQuotesStrict(quote1, quote2)
@@ -37,7 +37,7 @@ func TestNewQuotesStrict(t *testing.T) {
 }
 
 func TestNewQuotes(t *testing.T) {
-	t.Run("mixed valid and invalid quotes", func(t *testing.T) {
+	t.Run("mixed valid and invalid items", func(t *testing.T) {
 		quote1 := fakeQuote()
 		quote2 := &article.Quote{ID: "", Text: ""}
 		quote3 := fakeQuote()

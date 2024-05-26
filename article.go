@@ -19,13 +19,13 @@ func init() {
 // NewArticle creates a new Article with the provided data and returns a pointer to the Article.
 func NewArticle() *Article {
 	return &Article{
-		ID:                   uuid.New().String(),
-		Language:             "en",
-		Tags:                 NewTags(),
-		Images:               NewImages(),
-		Videos:               NewVideos(),
-		Quotes:               NewQuotes(),
-		AuthorSocialProfiles: NewSocialProfiles(),
+		ID:       uuid.New().String(),
+		Language: "en",
+		Tags:     NewTags(),
+		Images:   NewImages(),
+		Videos:   NewVideos(),
+		Quotes:   NewQuotes(),
+		Socials:  NewSocials(),
 	}
 }
 
@@ -33,23 +33,23 @@ func NewArticle() *Article {
 // This structure provides a flexible and universal foundation for storing and working with various types of content,
 // allowing for easy creation and modification of articles, as well as integration of media and social elements.
 type Article struct {
-	ID                   string          `json:"article__id" validate:"required,uuid4,max=36"`
-	Title                string          `json:"article__title" validate:"required,max=255"`
-	Byline               string          `json:"article__byline" validate:"max=255"`
-	Content              string          `json:"article__content" validate:"required,max=65000"`
-	TextContent          string          `json:"article__text_content" validate:"required,max=65000"`
-	Excerpt              string          `json:"article__excerpt" validate:"max=500"`
-	PublishDate          time.Time       `json:"article__publish_date" validate:"required"`
-	ModifiedDate         time.Time       `json:"article__modified_date"`
-	Images               *Images         `json:"article__images"`
-	Videos               *Videos         `json:"article__videos"`
-	Quotes               *Quotes         `json:"article__quotes"`
-	Tags                 *Tags           `json:"article__tags"`
-	Source               string          `json:"article__source" validate:"omitempty,url,max=4096"`
-	Language             string          `json:"article__language" validate:"max=255"`
-	Category             string          `json:"article__category" validate:"max=255"`
-	SiteName             string          `json:"article__site_name" validate:"max=255"`
-	AuthorSocialProfiles *SocialProfiles `json:"article__author_social_profiles"`
+	ID          string    `json:"article__id" validate:"required,uuid4,max=36"`
+	Title       string    `json:"article__title" validate:"required,max=255"`
+	Byline      string    `json:"article__byline" validate:"max=255"`
+	HTML        string    `json:"article__html" validate:"required,max=65000"`
+	TextContent string    `json:"article__text" validate:"required,max=65000"`
+	Excerpt     string    `json:"article__excerpt" validate:"max=500"`
+	Published   time.Time `json:"article__published" validate:"required"`
+	Modified    time.Time `json:"article__modified"`
+	Images      *Images   `json:"article__images"`
+	Videos      *Videos   `json:"article__videos"`
+	Quotes      *Quotes   `json:"article__quotes"`
+	Tags        *Tags     `json:"article__tags"`
+	Socials     *Socials  `json:"article__socials"`
+	Source      string    `json:"article__source" validate:"omitempty,url,max=4096"`
+	Language    string    `json:"article__language" validate:"max=255"`
+	Category    string    `json:"article__category" validate:"max=255"`
+	SiteName    string    `json:"article__site" validate:"max=255"`
 }
 
 // Normalize validates the Article and its nested structures, logs any validation errors, and clears invalid fields.
@@ -58,7 +58,7 @@ func (a *Article) Normalize() {
 	a.ID = TrimToMaxLen(a.ID, 36)
 	a.Title = TrimToMaxLen(a.Title, 255)
 	a.Byline = TrimToMaxLen(a.Byline, 255)
-	a.Content = TrimToMaxLen(a.Content, 65000)
+	a.HTML = TrimToMaxLen(a.HTML, 65000)
 	a.TextContent = TrimToMaxLen(a.TextContent, 65000)
 	a.Excerpt = TrimToMaxLen(a.Excerpt, 500)
 	a.Source = TrimToMaxLen(a.Source, 4096)
@@ -79,16 +79,16 @@ func (a *Article) Normalize() {
 				a.Title = ""
 			case "Article.Byline":
 				a.Byline = ""
-			case "Article.Content":
-				a.Content = ""
+			case "Article.HTML":
+				a.HTML = ""
 			case "Article.TextContent":
 				a.TextContent = ""
 			case "Article.Excerpt":
 				a.Excerpt = ""
-			case "Article.PublishDate":
-				a.PublishDate = time.Time{}
-			case "Article.ModifiedDate":
-				a.ModifiedDate = time.Time{}
+			case "Article.Published":
+				a.Published = time.Time{}
+			case "Article.Modified":
+				a.Modified = time.Time{}
 			case "Article.Source":
 				a.Source = ""
 			case "Article.Language":
@@ -105,7 +105,7 @@ func (a *Article) Normalize() {
 	a.Images.Normalize()
 	a.Videos.Normalize()
 	a.Quotes.Normalize()
-	a.AuthorSocialProfiles.Normalize()
+	a.Socials.Normalize()
 }
 
 // Map converts the Article struct to a map[string]any, including nested structures.
@@ -126,8 +126,8 @@ func (a *Article) Map() map[string]any {
 		quotes[i] = quote.Map()
 	}
 
-	socialProfiles := make([]map[string]any, a.AuthorSocialProfiles.Len())
-	for i, profile := range a.AuthorSocialProfiles.Slice() {
+	socialProfiles := make([]map[string]any, a.Socials.Len())
+	for i, profile := range a.Socials.Slice() {
 		socialProfiles[i] = profile.Map()
 	}
 
@@ -135,19 +135,19 @@ func (a *Article) Map() map[string]any {
 		"article__id":                     a.ID,
 		"article__title":                  a.Title,
 		"article__byline":                 a.Byline,
-		"article__content":                a.Content,
-		"article__text_content":           a.TextContent,
+		"article__html":                   a.HTML,
+		"article__text":                   a.TextContent,
 		"article__excerpt":                a.Excerpt,
 		"article__images":                 images,
 		"article__videos":                 videos,
 		"article__quotes":                 quotes,
-		"article__publish_date":           a.PublishDate,
-		"article__modified_date":          a.ModifiedDate,
+		"article__published":              a.Published,
+		"article__modified":               a.Modified,
 		"article__tags":                   a.Tags.Slice(),
 		"article__source":                 a.Source,
 		"article__language":               a.Language,
 		"article__category":               a.Category,
-		"article__site_name":              a.SiteName,
+		"article__site":                   a.SiteName,
 		"article__author_social_profiles": socialProfiles,
 	}
 }
@@ -182,7 +182,7 @@ func NewArticleFromMap(m map[string]any) (*Article, error) {
 		}
 	}
 
-	social := NewSocialProfiles()
+	social := NewSocials()
 	if profileMaps, ok := m["article__author_social_profiles"].([]map[string]any); ok {
 		for _, profileMap := range profileMaps {
 			if profile, err := NewSocialProfileFromMap(profileMap); err == nil {
@@ -191,27 +191,27 @@ func NewArticleFromMap(m map[string]any) (*Article, error) {
 		}
 	}
 
-	publishDate, _ := m["article__publish_date"].(time.Time)
-	modifiedDate, _ := m["article__modified_date"].(time.Time)
+	publishDate, _ := m["article__published"].(time.Time)
+	modifiedDate, _ := m["article__modified"].(time.Time)
 
 	article := &Article{
-		ID:                   StringFromMap(m, "article__id"),
-		Title:                StringFromMap(m, "article__title"),
-		Byline:               StringFromMap(m, "article__byline"),
-		Content:              StringFromMap(m, "article__content"),
-		TextContent:          StringFromMap(m, "article__text_content"),
-		Excerpt:              StringFromMap(m, "article__excerpt"),
-		Images:               images,
-		Videos:               videos,
-		Quotes:               quotes,
-		PublishDate:          publishDate,
-		ModifiedDate:         modifiedDate,
-		Tags:                 NewTags(GetStringSlice(m, "article__tags")...),
-		Source:               StringFromMap(m, "article__source"),
-		Language:             StringFromMap(m, "article__language"),
-		Category:             StringFromMap(m, "article__category"),
-		SiteName:             StringFromMap(m, "article__site_name"),
-		AuthorSocialProfiles: social,
+		ID:          StringFromMap(m, "article__id"),
+		Title:       StringFromMap(m, "article__title"),
+		Byline:      StringFromMap(m, "article__byline"),
+		HTML:        StringFromMap(m, "article__html"),
+		TextContent: StringFromMap(m, "article__text"),
+		Excerpt:     StringFromMap(m, "article__excerpt"),
+		Images:      images,
+		Videos:      videos,
+		Quotes:      quotes,
+		Published:   publishDate,
+		Modified:    modifiedDate,
+		Tags:        NewTags(GetStringSlice(m, "article__tags")...),
+		Source:      StringFromMap(m, "article__source"),
+		Language:    StringFromMap(m, "article__language"),
+		Category:    StringFromMap(m, "article__category"),
+		SiteName:    StringFromMap(m, "article__site"),
+		Socials:     social,
 	}
 
 	err := validate.Struct(article)

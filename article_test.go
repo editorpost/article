@@ -1,6 +1,7 @@
 package article_test
 
 import (
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -21,9 +22,9 @@ func TestMinimalInvariantArticle(t *testing.T) {
 
 	// required fields
 	expected.Title = gofakeit.Sentence(3)
-	expected.Content = gofakeit.Paragraph(1, 5, 10, " ")
+	expected.HTML = gofakeit.Paragraph(1, 5, 10, " ")
 	expected.TextContent = gofakeit.Paragraph(1, 5, 10, " ")
-	expected.PublishDate = time.Now()
+	expected.Published = time.Now()
 
 	got, err := article.NewArticleFromMap(expected.Map())
 	require.NoError(t, err)
@@ -37,10 +38,10 @@ func TestFullInvariantArticle(t *testing.T) {
 
 	// Required fields
 	expected.Title = gofakeit.Sentence(3)
-	expected.Content = gofakeit.Paragraph(1, 5, 10, " ")
+	expected.HTML = gofakeit.Paragraph(1, 5, 10, " ")
 	expected.TextContent = gofakeit.Paragraph(1, 5, 10, " ")
-	expected.PublishDate = time.Now()
-	expected.ModifiedDate = time.Now()
+	expected.Published = time.Now()
+	expected.Modified = time.Now()
 
 	// Optional fields
 	expected.Byline = gofakeit.Name()
@@ -76,7 +77,7 @@ func TestFullInvariantArticle(t *testing.T) {
 	expected.Category = "Travel"
 	expected.SiteName = "Example Travel Blog"
 
-	expected.AuthorSocialProfiles = article.NewSocialProfiles(&article.SocialProfile{
+	expected.Socials = article.NewSocials(&article.Social{
 		Platform: "Twitter",
 		URL:      gofakeit.URL(),
 	})
@@ -91,10 +92,10 @@ func TestInvalidNestedStructureArticle(t *testing.T) {
 
 	// Required fields
 	expected.Title = gofakeit.Sentence(3)
-	expected.Content = gofakeit.Paragraph(1, 5, 10, " ")
+	expected.HTML = gofakeit.Paragraph(1, 5, 10, " ")
 	expected.TextContent = gofakeit.Paragraph(1, 5, 10, " ")
-	expected.PublishDate = time.Now()
-	expected.ModifiedDate = time.Now()
+	expected.Published = time.Now()
+	expected.Modified = time.Now()
 
 	// Optional fields with invalid nested structure
 	expected.Byline = gofakeit.Name()
@@ -123,16 +124,16 @@ func TestInvalidNestedStructureArticle(t *testing.T) {
 	got, err := article.NewArticleFromMap(inputMap)
 	require.NoError(t, err)
 
-	// To compare PublishDate and ModifiedDate separately due to possible time differences
+	// To compare Published and Modified separately due to possible time differences
 	assert.Equal(t, expected.ID, got.ID)
 	assert.Equal(t, expected.Title, got.Title)
 	assert.Equal(t, expected.Byline, got.Byline)
-	assert.Equal(t, expected.Content, got.Content)
+	assert.Equal(t, expected.HTML, got.HTML)
 	assert.Equal(t, expected.TextContent, got.TextContent)
 	assert.Equal(t, expected.Excerpt, got.Excerpt)
 	assert.Equal(t, expected.Images, got.Images)
-	assert.WithinDuration(t, expected.PublishDate, got.PublishDate, time.Second)
-	assert.WithinDuration(t, expected.ModifiedDate, got.ModifiedDate, time.Second)
+	assert.WithinDuration(t, expected.Published, got.Published, time.Second)
+	assert.WithinDuration(t, expected.Modified, got.Modified, time.Second)
 	assert.Equal(t, expected.Tags, got.Tags)
 	assert.Equal(t, expected.Source, got.Source)
 	assert.Equal(t, expected.Language, got.Language)
@@ -151,10 +152,10 @@ func TestArticleNormalize(t *testing.T) {
 
 	// Required fields
 	expected.Title = gofakeit.Sentence(3)
-	expected.Content = gofakeit.Paragraph(1, 5, 10, " ")
+	expected.HTML = gofakeit.Paragraph(1, 5, 10, " ")
 	expected.TextContent = gofakeit.Paragraph(1, 5, 10, " ")
-	expected.PublishDate = time.Now()
-	expected.ModifiedDate = time.Now()
+	expected.Published = time.Now()
+	expected.Modified = time.Now()
 
 	// Optional fields with some invalid data
 	expected.Byline = gofakeit.Name()
@@ -187,7 +188,7 @@ func TestArticleNormalize(t *testing.T) {
 	expected.Category = "Travel"
 	expected.SiteName = "Example Travel Blog"
 
-	expected.AuthorSocialProfiles = article.NewSocialProfiles(&article.SocialProfile{
+	expected.Socials = article.NewSocials(&article.Social{
 		Platform: "Twitter",
 		URL:      "invalid-url",
 	})
@@ -198,7 +199,7 @@ func TestArticleNormalize(t *testing.T) {
 	assert.Empty(t, expected.Images.Slice())
 	assert.Empty(t, expected.Videos.Slice())
 	assert.Empty(t, expected.Quotes.Slice())
-	assert.Empty(t, "", expected.AuthorSocialProfiles.Slice())
+	assert.Empty(t, "", expected.Socials.Slice())
 	assert.Equal(t, "", expected.Source)
 }
 
@@ -208,10 +209,10 @@ func TestArticleNormalizeFieldClearing(t *testing.T) {
 
 	// Set required fields with valid data
 	invalid.Title = gofakeit.Sentence(3)
-	invalid.Content = gofakeit.Paragraph(1, 5, 10, " ")
+	invalid.HTML = gofakeit.Paragraph(1, 5, 10, " ")
 	invalid.TextContent = gofakeit.Paragraph(1, 5, 10, " ")
-	invalid.PublishDate = time.Now()
-	invalid.ModifiedDate = time.Now()
+	invalid.Published = time.Now()
+	invalid.Modified = time.Now()
 
 	// Set invalid data for optional fields
 	invalid.ID = "invalid-uuid"
@@ -250,4 +251,79 @@ func TestTrimToMaxLen(t *testing.T) {
 	s = "Short string"
 	trimmed = article.TrimToMaxLen(s, 20)
 	assert.Equal(t, s, trimmed)
+}
+
+func TestUnmarshal(t *testing.T) {
+
+	js := `{
+		  "article__id": "123e4567-e89b-12d3-a456-426614174000",
+		  "article__title": "The Rise of AI",
+		  "article__byline": "By John Doe",
+		  "article__html": "<p>Artificial Intelligence is transforming the world.</p>",
+		  "article__text": "Artificial Intelligence is transforming the world.",
+		  "article__excerpt": "An overview of how AI is changing various industries.",
+		  "article__published": "2024-05-27T10:00:00Z",
+		  "article__modified": "2024-05-28T12:00:00Z",
+		  "article__images": [
+			  {
+				"id": "img-001",
+				"url": "https://example.com/image1.jpg",
+				"alt_text": "AI Illustration",
+				"width": 800,
+				"height": 600,
+				"caption": "An illustration representing AI."
+			  }
+          ],
+		  "article__videos": [
+			  {
+				"id": "vid-001",
+				"url": "https://example.com/video1.mp4",
+				"embed_code": "<iframe src='https://example.com/video1.mp4'></iframe>",
+				"caption": "A video explaining AI."
+			  }
+		  ],
+		  "article__quotes": [
+			  {
+				"id": "quote-001",
+				"text": "AI is the future of technology.",
+				"author": "Jane Smith",
+				"source": "https://twitter.com/janesmith/status/123",
+				"platform": "Twitter"
+			  }
+		  ],
+		  "article__tags": ["AI", "Technology", "Future"],
+		  "article__source": "https://example.com",
+		  "article__language": "en",
+		  "article__category": "Technology",
+		  "article__site": "Tech News",
+		  "article__socials": [
+			  {
+				"id": "sp-001",
+				"platform": "Twitter",
+				"url": "https://twitter.com/johndoe"
+			  }
+		  ]
+	}`
+
+	// use encoding/json to unmarshal the JSON string into Article
+
+	art := article.Article{}
+	json.Unmarshal([]byte(js), &art)
+
+	// check the values of the Article fields
+	assert.Equal(t, "123e4567-e89b-12d3-a456-426614174000", art.ID)
+	assert.Equal(t, "The Rise of AI", art.Title)
+	assert.Equal(t, "By John Doe", art.Byline)
+	assert.Equal(t, "<p>Artificial Intelligence is transforming the world.</p>", art.HTML)
+	assert.Equal(t, "Artificial Intelligence is transforming the world.", art.TextContent)
+	assert.Equal(t, "An overview of how AI is changing various industries.", art.Excerpt)
+	assert.Equal(t, "2024-05-27T10:00:00Z", art.Published.Format(time.RFC3339))
+	assert.Equal(t, "2024-05-28T12:00:00Z", art.Modified.Format(time.RFC3339))
+
+	// check the values of the nested structures
+	assert.Equal(t, 1, art.Images.Len())
+	assert.Equal(t, 1, art.Videos.Len())
+	assert.Equal(t, 1, art.Quotes.Len())
+	assert.Equal(t, 1, art.Socials.Len())
+	assert.Equal(t, 3, art.Tags.Len())
 }

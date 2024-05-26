@@ -1,13 +1,14 @@
 package article
 
 import (
+	"encoding/json"
 	"errors"
 	"log"
 )
 
 // Quotes represents a collection of Quote pointers
 type Quotes struct {
-	quotes []*Quote
+	items []*Quote
 }
 
 // NewQuotesStrict creates a collection and validates every quote
@@ -17,10 +18,10 @@ func NewQuotesStrict(quotes ...*Quote) (*Quotes, error) {
 			return nil, errors.New("invalid quote: " + err.Error())
 		}
 	}
-	return &Quotes{quotes: quotes}, nil
+	return &Quotes{items: quotes}, nil
 }
 
-// NewQuotes creates a collection, skips invalid quotes, and logs errors
+// NewQuotes creates a collection, skips invalid items, and logs errors
 func NewQuotes(quotes ...*Quote) *Quotes {
 	validQuotes := []*Quote{}
 	for _, quote := range quotes {
@@ -30,12 +31,12 @@ func NewQuotes(quotes ...*Quote) *Quotes {
 			log.Printf("Invalid quote skipped: %+v, error: %v", quote, err)
 		}
 	}
-	return &Quotes{quotes: validQuotes}
+	return &Quotes{items: validQuotes}
 }
 
 // Get returns the quote by ID
-func (q *Quotes) Get(id string) (*Quote, bool) {
-	for _, quote := range q.quotes {
+func (list *Quotes) Get(id string) (*Quote, bool) {
+	for _, quote := range list.items {
 		if quote.ID == id {
 			return quote, true
 		}
@@ -43,59 +44,59 @@ func (q *Quotes) Get(id string) (*Quote, bool) {
 	return nil, false
 }
 
-// Slice returns a slice of all quotes
-func (q *Quotes) Slice() []*Quote {
-	return q.quotes
+// Slice returns a slice of all items
+func (list *Quotes) Slice() []*Quote {
+	return list.items
 }
 
-// Add adds quotes to the collection
-func (q *Quotes) Add(quotes ...*Quote) *Quotes {
+// Add adds items to the collection
+func (list *Quotes) Add(quotes ...*Quote) *Quotes {
 	for _, quote := range quotes {
 		if err := validate.Struct(quote); err == nil {
-			q.quotes = append(q.quotes, quote)
+			list.items = append(list.items, quote)
 		} else {
 			log.Printf("Invalid quote skipped: %+v, error: %v", quote, err)
 		}
 	}
-	return q
+	return list
 }
 
-// Remove removes quotes by ID
-func (q *Quotes) Remove(ids ...string) *Quotes {
+// Remove removes items by ID
+func (list *Quotes) Remove(ids ...string) *Quotes {
 	idSet := make(map[string]struct{}, len(ids))
 	for _, id := range ids {
 		idSet[id] = struct{}{}
 	}
 
 	filteredQuotes := []*Quote{}
-	for _, quote := range q.quotes {
+	for _, quote := range list.items {
 		if _, found := idSet[quote.ID]; !found {
 			filteredQuotes = append(filteredQuotes, quote)
 		}
 	}
 
-	q.quotes = filteredQuotes
-	return q
+	list.items = filteredQuotes
+	return list
 }
 
 // IDs returns a slice of all quote IDs
-func (q *Quotes) IDs() []string {
-	ids := make([]string, len(q.quotes))
-	for idx, quote := range q.quotes {
+func (list *Quotes) IDs() []string {
+	ids := make([]string, len(list.items))
+	for idx, quote := range list.items {
 		ids[idx] = quote.ID
 	}
 	return ids
 }
 
-// Len returns the number of quotes
-func (q *Quotes) Len() int {
-	return len(q.quotes)
+// Len returns the number of items
+func (list *Quotes) Len() int {
+	return len(list.items)
 }
 
 // Filter returns a new Quotes collection filtered by the provided functions
-func (q *Quotes) Filter(fns ...func(*Quote) bool) *Quotes {
+func (list *Quotes) Filter(fns ...func(*Quote) bool) *Quotes {
 	filteredQuotes := []*Quote{}
-	for _, quote := range q.quotes {
+	for _, quote := range list.items {
 		include := true
 		for _, fn := range fns {
 			if !fn(quote) {
@@ -107,12 +108,32 @@ func (q *Quotes) Filter(fns ...func(*Quote) bool) *Quotes {
 			filteredQuotes = append(filteredQuotes, quote)
 		}
 	}
-	return &Quotes{quotes: filteredQuotes}
+	return &Quotes{items: filteredQuotes}
 }
 
-// Normalize validates and trims the fields of all quotes
-func (q *Quotes) Normalize() {
-	for _, quote := range q.quotes {
+// Normalize validates and trims the fields of all items
+func (list *Quotes) Normalize() {
+	for _, quote := range list.items {
 		quote.Normalize()
 	}
+}
+
+// UnmarshalJSON to array of images using encoding/json
+func (list *Quotes) UnmarshalJSON(data []byte) error {
+
+	// Unmarshal to a slice of Image
+	var quotes []*Quote
+	if err := json.Unmarshal(data, &quotes); err != nil {
+		return err
+	}
+
+	// Create a new Images collection
+	*list = *NewQuotes(quotes...)
+
+	return nil
+}
+
+// MarshalJSON from array of images using encoding/json
+func (list *Quotes) MarshalJSON() ([]byte, error) {
+	return json.Marshal(list.items)
 }

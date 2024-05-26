@@ -108,9 +108,9 @@ Here is an example of a minimal invariant in JSON format:
 {
   "article__id": "123e4567-e89b-12d3-a456-426614174000",
   "article__title": "Sample Title",
-  "article__content": "This is the content of the article.",
-  "article__text_content": "This is the text content of the article.",
-  "article__publish_date": "2024-01-01T00:00:00Z"
+  "article__html": "This is the content of the article.",
+  "article__text": "This is the text content of the article.",
+  "article__published": "2024-01-01T00:00:00Z"
 }
 ```
 

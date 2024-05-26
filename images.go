@@ -1,6 +1,7 @@
 package article
 
 import (
+	"encoding/json"
 	"errors"
 	"log"
 )
@@ -34,15 +35,15 @@ func NewImages(images ...*Image) *Images {
 }
 
 // Normalize validates and trims the fields of all images
-func (i *Images) Normalize() {
-	for _, img := range i.images {
+func (list *Images) Normalize() {
+	for _, img := range list.images {
 		img.Normalize()
 	}
 }
 
 // Get returns the image by ID
-func (i *Images) Get(id string) (*Image, bool) {
-	for _, img := range i.images {
+func (list *Images) Get(id string) (*Image, bool) {
+	for _, img := range list.images {
 		if img.ID == id {
 			return img, true
 		}
@@ -51,58 +52,58 @@ func (i *Images) Get(id string) (*Image, bool) {
 }
 
 // Slice returns a slice of all images
-func (i *Images) Slice() []*Image {
-	return i.images
+func (list *Images) Slice() []*Image {
+	return list.images
 }
 
 // Add adds images to the collection
-func (i *Images) Add(images ...*Image) *Images {
+func (list *Images) Add(images ...*Image) *Images {
 	for _, img := range images {
 		if img != nil && img.ID != "" {
-			i.images = append(i.images, img)
+			list.images = append(list.images, img)
 		} else {
 			log.Printf("Invalid image skipped: %+v", img)
 		}
 	}
-	return i
+	return list
 }
 
 // Remove removes images by ID
-func (i *Images) Remove(ids ...string) *Images {
+func (list *Images) Remove(ids ...string) *Images {
 	idSet := make(map[string]struct{}, len(ids))
 	for _, id := range ids {
 		idSet[id] = struct{}{}
 	}
 
 	filteredImages := []*Image{}
-	for _, img := range i.images {
+	for _, img := range list.images {
 		if _, found := idSet[img.ID]; !found {
 			filteredImages = append(filteredImages, img)
 		}
 	}
 
-	i.images = filteredImages
-	return i
+	list.images = filteredImages
+	return list
 }
 
 // IDs returns a slice of all image IDs
-func (i *Images) IDs() []string {
-	ids := make([]string, len(i.images))
-	for idx, img := range i.images {
+func (list *Images) IDs() []string {
+	ids := make([]string, len(list.images))
+	for idx, img := range list.images {
 		ids[idx] = img.ID
 	}
 	return ids
 }
 
 // Len returns the number of images
-func (i *Images) Len() int {
-	return len(i.images)
+func (list *Images) Len() int {
+	return len(list.images)
 }
 
 // Filter returns a new Images collection filtered by the provided functions
-func (i *Images) Filter(fns ...func(*Image) bool) *Images {
+func (list *Images) Filter(fns ...func(*Image) bool) *Images {
 	filteredImages := []*Image{}
-	for _, img := range i.images {
+	for _, img := range list.images {
 		include := true
 		for _, fn := range fns {
 			if !fn(img) {
@@ -115,4 +116,24 @@ func (i *Images) Filter(fns ...func(*Image) bool) *Images {
 		}
 	}
 	return &Images{images: filteredImages}
+}
+
+// UnmarshalJSON to array of images using encoding/json
+func (list *Images) UnmarshalJSON(data []byte) error {
+
+	// Unmarshal to a slice of Image
+	var images []*Image
+	if err := json.Unmarshal(data, &images); err != nil {
+		return err
+	}
+
+	// Create a new Images collection
+	*list = *NewImages(images...)
+
+	return nil
+}
+
+// MarshalJSON from array of images using encoding/json
+func (list Images) MarshalJSON() ([]byte, error) {
+	return json.Marshal(list.images)
 }

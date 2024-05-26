@@ -1,18 +1,19 @@
 package article
 
 import (
+	"encoding/json"
 	"errors"
 	"log"
 )
 
-// SocialProfiles represents a collection of SocialProfile pointers
-type SocialProfiles struct {
-	profiles []*SocialProfile
+// Socials represents a collection of Social pointers
+type Socials struct {
+	items []*Social
 }
 
-// NewSocialProfiles creates a collection, skips invalid social profiles, and logs errors
-func NewSocialProfiles(profiles ...*SocialProfile) *SocialProfiles {
-	validProfiles := []*SocialProfile{}
+// NewSocials creates a collection, skips invalid social items, and logs errors
+func NewSocials(profiles ...*Social) *Socials {
+	validProfiles := []*Social{}
 	for _, profile := range profiles {
 		if err := validate.Struct(profile); err == nil {
 			validProfiles = append(validProfiles, profile)
@@ -20,22 +21,22 @@ func NewSocialProfiles(profiles ...*SocialProfile) *SocialProfiles {
 			log.Printf("Invalid social profile skipped: %+v, error: %v", profile, err)
 		}
 	}
-	return &SocialProfiles{profiles: validProfiles}
+	return &Socials{items: validProfiles}
 }
 
-// NewSocialProfilesStrict creates a collection and validates every social profile
-func NewSocialProfilesStrict(profiles ...*SocialProfile) (*SocialProfiles, error) {
+// NewSocialsStrict creates a collection and validates every social profile
+func NewSocialsStrict(profiles ...*Social) (*Socials, error) {
 	for _, profile := range profiles {
 		if err := validate.Struct(profile); err != nil {
 			return nil, errors.New("invalid social profile: " + err.Error())
 		}
 	}
-	return &SocialProfiles{profiles: profiles}, nil
+	return &Socials{items: profiles}, nil
 }
 
 // Get returns the social profile by ID
-func (sp *SocialProfiles) Get(id string) (*SocialProfile, bool) {
-	for _, profile := range sp.profiles {
+func (list *Socials) Get(id string) (*Social, bool) {
+	for _, profile := range list.items {
 		if profile.ID == id {
 			return profile, true
 		}
@@ -43,59 +44,59 @@ func (sp *SocialProfiles) Get(id string) (*SocialProfile, bool) {
 	return nil, false
 }
 
-// Slice returns a slice of all social profiles
-func (sp *SocialProfiles) Slice() []*SocialProfile {
-	return sp.profiles
+// Slice returns a slice of all social items
+func (list *Socials) Slice() []*Social {
+	return list.items
 }
 
-// Add adds social profiles to the collection
-func (sp *SocialProfiles) Add(profiles ...*SocialProfile) *SocialProfiles {
+// Add adds social items to the collection
+func (list *Socials) Add(profiles ...*Social) *Socials {
 	for _, profile := range profiles {
 		if err := validate.Struct(profile); err == nil {
-			sp.profiles = append(sp.profiles, profile)
+			list.items = append(list.items, profile)
 		} else {
 			log.Printf("Invalid social profile skipped: %+v, error: %v", profile, err)
 		}
 	}
-	return sp
+	return list
 }
 
-// Remove removes social profiles by ID
-func (sp *SocialProfiles) Remove(ids ...string) *SocialProfiles {
+// Remove removes social items by ID
+func (list *Socials) Remove(ids ...string) *Socials {
 	idSet := make(map[string]struct{}, len(ids))
 	for _, id := range ids {
 		idSet[id] = struct{}{}
 	}
 
-	filteredProfiles := []*SocialProfile{}
-	for _, profile := range sp.profiles {
+	filteredProfiles := []*Social{}
+	for _, profile := range list.items {
 		if _, found := idSet[profile.ID]; !found {
 			filteredProfiles = append(filteredProfiles, profile)
 		}
 	}
 
-	sp.profiles = filteredProfiles
-	return sp
+	list.items = filteredProfiles
+	return list
 }
 
 // IDs returns a slice of all social profile IDs
-func (sp *SocialProfiles) IDs() []string {
-	ids := make([]string, len(sp.profiles))
-	for idx, profile := range sp.profiles {
+func (list *Socials) IDs() []string {
+	ids := make([]string, len(list.items))
+	for idx, profile := range list.items {
 		ids[idx] = profile.ID
 	}
 	return ids
 }
 
-// Len returns the number of social profiles
-func (sp *SocialProfiles) Len() int {
-	return len(sp.profiles)
+// Len returns the number of social items
+func (list *Socials) Len() int {
+	return len(list.items)
 }
 
-// Filter returns a new SocialProfiles collection filtered by the provided functions
-func (sp *SocialProfiles) Filter(fns ...func(*SocialProfile) bool) *SocialProfiles {
-	filteredProfiles := []*SocialProfile{}
-	for _, profile := range sp.profiles {
+// Filter returns a new Socials collection filtered by the provided functions
+func (list *Socials) Filter(fns ...func(*Social) bool) *Socials {
+	filteredProfiles := []*Social{}
+	for _, profile := range list.items {
 		include := true
 		for _, fn := range fns {
 			if !fn(profile) {
@@ -107,12 +108,32 @@ func (sp *SocialProfiles) Filter(fns ...func(*SocialProfile) bool) *SocialProfil
 			filteredProfiles = append(filteredProfiles, profile)
 		}
 	}
-	return &SocialProfiles{profiles: filteredProfiles}
+	return &Socials{items: filteredProfiles}
 }
 
-// Normalize validates and trims the fields of all social profiles
-func (sp *SocialProfiles) Normalize() {
-	for _, profile := range sp.profiles {
+// Normalize validates and trims the fields of all social items
+func (list *Socials) Normalize() {
+	for _, profile := range list.items {
 		profile.Normalize()
 	}
+}
+
+// UnmarshalJSON to array of images using encoding/json
+func (list *Socials) UnmarshalJSON(data []byte) error {
+
+	// Unmarshal to a slice of Image
+	var socials []*Social
+	if err := json.Unmarshal(data, &socials); err != nil {
+		return err
+	}
+
+	// Create a new Images collection
+	*list = *NewSocials(socials...)
+
+	return nil
+}
+
+// MarshalJSON from array of images using encoding/json
+func (list *Socials) MarshalJSON() ([]byte, error) {
+	return json.Marshal(list.items)
 }

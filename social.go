@@ -6,8 +6,8 @@ import (
 	"log/slog"
 )
 
-// SocialProfile represents a social media profile of an author.
-type SocialProfile struct {
+// Social represents a social media profile of an author.
+type Social struct {
 
 	// ID is the unique identifier of the quote.
 	// It is stable enough to be used as a key in a storage system.
@@ -22,16 +22,16 @@ type SocialProfile struct {
 	URL string `json:"url" validate:"required,url,max=4096"`
 }
 
-func NewSocialProfile(platform, url string) *SocialProfile {
-	return &SocialProfile{
+func NewSocial(platform, url string) *Social {
+	return &Social{
 		ID:       uuid.New().String(),
 		Platform: platform,
 		URL:      url,
 	}
 }
 
-// Normalize validates and trims the fields of the SocialProfile.
-func (s *SocialProfile) Normalize() {
+// Normalize validates and trims the fields of the Social.
+func (s *Social) Normalize() {
 
 	if s.ID == "" {
 		s.ID = uuid.New().String()
@@ -44,14 +44,14 @@ func (s *SocialProfile) Normalize() {
 	err := validate.Struct(s)
 	if err != nil {
 		for _, fieldErr := range err.(validator.ValidationErrors) {
-			slog.Debug("Validation error in SocialProfile", slog.String("field", fieldErr.Namespace()), slog.String("error", fieldErr.Tag()))
-			*s = SocialProfile{}
+			slog.Debug("Validation error in Social", slog.String("field", fieldErr.Namespace()), slog.String("error", fieldErr.Tag()))
+			*s = Social{}
 		}
 	}
 }
 
-// Map converts the SocialProfile struct to a map[string]any.
-func (s *SocialProfile) Map() map[string]any {
+// Map converts the Social struct to a map[string]any.
+func (s *Social) Map() map[string]any {
 	return map[string]any{
 		"id":       s.ID,
 		"platform": s.Platform,
@@ -59,9 +59,9 @@ func (s *SocialProfile) Map() map[string]any {
 	}
 }
 
-// NewSocialProfileFromMap creates a SocialProfile from a map[string]any, validates it, and returns a pointer to the SocialProfile or an error.
-func NewSocialProfileFromMap(m map[string]any) (*SocialProfile, error) {
-	profile := &SocialProfile{
+// NewSocialProfileFromMap creates a Social from a map[string]any, validates it, and returns a pointer to the Social or an error.
+func NewSocialProfileFromMap(m map[string]any) (*Social, error) {
+	profile := &Social{
 		ID:       StringFromMap(m, "id"),
 		Platform: StringFromMap(m, "platform"),
 		URL:      StringFromMap(m, "url"),
