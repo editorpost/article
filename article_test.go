@@ -48,19 +48,19 @@ func TestFullInvariantArticle(t *testing.T) {
 	expected.Excerpt = gofakeit.Sentence(10)
 
 	expected.Images = article.NewImages(&article.Image{
-		ID:      gofakeit.UUID(),
-		URL:     gofakeit.URL(),
-		AltText: gofakeit.Sentence(5),
-		Width:   gofakeit.Number(800, 1920),
-		Height:  gofakeit.Number(600, 1080),
-		Caption: gofakeit.Sentence(10),
+		ID:     gofakeit.UUID(),
+		URL:    gofakeit.URL(),
+		Alt:    gofakeit.Sentence(5),
+		Width:  gofakeit.Number(800, 1920),
+		Height: gofakeit.Number(600, 1080),
+		Title:  gofakeit.Sentence(10),
 	})
 
 	expected.Videos = article.NewVideos(&article.Video{
-		ID:        gofakeit.UUID(),
-		URL:       gofakeit.URL(),
-		EmbedCode: "<iframe src='" + gofakeit.URL() + "'></iframe>",
-		Caption:   gofakeit.Sentence(10),
+		ID:    gofakeit.UUID(),
+		URL:   gofakeit.URL(),
+		Embed: "<iframe src='" + gofakeit.URL() + "'></iframe>",
+		Title: gofakeit.Sentence(10),
 	})
 
 	expected.Quotes = article.NewQuotes(&article.Quote{
@@ -102,11 +102,11 @@ func TestInvalidNestedStructureArticle(t *testing.T) {
 	expected.Excerpt = gofakeit.Sentence(10)
 
 	expected.Images = article.NewImages(&article.Image{
-		URL:     "invalid-url",
-		AltText: gofakeit.Sentence(5),
-		Width:   gofakeit.Number(800, 1920),
-		Height:  gofakeit.Number(600, 1080),
-		Caption: gofakeit.Sentence(10),
+		URL:    "invalid-url",
+		Alt:    gofakeit.Sentence(5),
+		Width:  gofakeit.Number(800, 1920),
+		Height: gofakeit.Number(600, 1080),
+		Title:  gofakeit.Sentence(10),
 	})
 
 	expected.Tags = article.NewTags("travel", "Phuket", "Thailand")
@@ -162,17 +162,17 @@ func TestArticleNormalize(t *testing.T) {
 	expected.Excerpt = gofakeit.Sentence(10)
 
 	expected.Images = article.NewImages(&article.Image{
-		URL:     "invalid-url",
-		AltText: gofakeit.Sentence(5),
-		Width:   gofakeit.Number(800, 1920),
-		Height:  gofakeit.Number(600, 1080),
-		Caption: gofakeit.Sentence(10),
+		URL:    "invalid-url",
+		Alt:    gofakeit.Sentence(5),
+		Width:  gofakeit.Number(800, 1920),
+		Height: gofakeit.Number(600, 1080),
+		Title:  gofakeit.Sentence(10),
 	})
 
 	expected.Videos = article.NewVideos(&article.Video{
-		URL:       "invalid-url",
-		EmbedCode: "<iframe src='invalid-url'></iframe>",
-		Caption:   gofakeit.Sentence(10),
+		URL:   "invalid-url",
+		Embed: "<iframe src='invalid-url'></iframe>",
+		Title: gofakeit.Sentence(10),
 	})
 
 	expected.Quotes = article.NewQuotes(&article.Quote{
@@ -268,18 +268,18 @@ func TestUnmarshal(t *testing.T) {
 			  {
 				"id": "img-001",
 				"url": "https://example.com/image1.jpg",
-				"alt_text": "AI Illustration",
+				"alt": "AI Illustration",
 				"width": 800,
 				"height": 600,
-				"caption": "An illustration representing AI."
+				"title": "An illustration representing AI."
 			  }
           ],
 		  "videos": [
 			  {
 				"id": "vid-001",
 				"url": "https://example.com/video1.mp4",
-				"embed_code": "<iframe src='https://example.com/video1.mp4'></iframe>",
-				"caption": "A video explaining AI."
+				"embed": "<iframe src='https://example.com/video1.mp4'></iframe>",
+				"title": "A video explaining AI."
 			  }
 		  ],
 		  "quotes": [

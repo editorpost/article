@@ -28,31 +28,31 @@ func TestImageConversions(t *testing.T) {
 		{
 			name: "Valid Image",
 			inputMap: map[string]any{
-				"id":       "123e4567-e89b-12d3-a456-426614174000",
-				"url":      "https://example.com/image.jpg",
-				"alt_text": "An example image",
-				"width":    800,
-				"height":   600,
-				"caption":  "An example caption",
+				"id":     "123e4567-e89b-12d3-a456-426614174000",
+				"url":    "https://example.com/image.jpg",
+				"alt":    "An example image",
+				"width":  800,
+				"height": 600,
+				"title":  "An example title",
 			},
 			expectedImage: &article.Image{
-				ID:      "123e4567-e89b-12d3-a456-426614174000",
-				URL:     "https://example.com/image.jpg",
-				AltText: "An example image",
-				Width:   800,
-				Height:  600,
-				Caption: "An example caption",
+				ID:     "123e4567-e89b-12d3-a456-426614174000",
+				URL:    "https://example.com/image.jpg",
+				Alt:    "An example image",
+				Width:  800,
+				Height: 600,
+				Title:  "An example title",
 			},
 			expectError: false,
 		},
 		{
 			name: "Invalid URL",
 			inputMap: map[string]any{
-				"url":      "invalid-url",
-				"alt_text": "An example image",
-				"width":    800,
-				"height":   600,
-				"caption":  "An example caption",
+				"url":    "invalid-url",
+				"alt":    "An example image",
+				"width":  800,
+				"height": 600,
+				"title":  "An example title",
 			},
 			expectedImage: nil,
 			expectError:   true,
@@ -60,11 +60,11 @@ func TestImageConversions(t *testing.T) {
 		{
 			name: "Missing Required Fields",
 			inputMap: map[string]any{
-				"url":      "",
-				"alt_text": "An example image",
-				"width":    800,
-				"height":   600,
-				"caption":  "An example caption",
+				"url":    "",
+				"alt":    "An example image",
+				"width":  800,
+				"height": 600,
+				"title":  "An example title",
 			},
 			expectedImage: nil,
 			expectError:   true,
@@ -72,18 +72,18 @@ func TestImageConversions(t *testing.T) {
 		{
 			name: "Zero Value Fields",
 			inputMap: map[string]any{
-				"url":      "",
-				"alt_text": "",
-				"width":    0,
-				"height":   0,
-				"caption":  "",
+				"url":    "",
+				"alt":    "",
+				"width":  0,
+				"height": 0,
+				"title":  "",
 			},
 			expectedImage: &article.Image{
-				URL:     "",
-				AltText: "",
-				Width:   0,
-				Height:  0,
-				Caption: "",
+				URL:    "",
+				Alt:    "",
+				Width:  0,
+				Height: 0,
+				Title:  "",
 			},
 			expectError: true,
 		},
@@ -105,17 +105,17 @@ func TestImageConversions(t *testing.T) {
 
 func TestImageNormalize(t *testing.T) {
 	img := &article.Image{
-		URL:     "  " + gofakeit.URL() + "  ",
-		AltText: "  " + gofakeit.Sentence(5) + "  ",
-		Width:   gofakeit.Number(800, 1920),
-		Height:  gofakeit.Number(600, 1080),
-		Caption: "  " + gofakeit.Sentence(10) + "  ",
+		URL:    "  " + gofakeit.URL() + "  ",
+		Alt:    "  " + gofakeit.Sentence(5) + "  ",
+		Width:  gofakeit.Number(800, 1920),
+		Height: gofakeit.Number(600, 1080),
+		Title:  "  " + gofakeit.Sentence(10) + "  ",
 	}
 
 	img.Normalize()
 
 	assert.NotEmpty(t, img.URL)
 	assert.Equal(t, strings.TrimSpace(img.URL), img.URL)
-	assert.Equal(t, strings.TrimSpace(img.AltText), img.AltText)
-	assert.Equal(t, strings.TrimSpace(img.Caption), img.Caption)
+	assert.Equal(t, strings.TrimSpace(img.Alt), img.Alt)
+	assert.Equal(t, strings.TrimSpace(img.Title), img.Title)
 }

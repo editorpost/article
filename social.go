@@ -6,7 +6,7 @@ import (
 	"log/slog"
 )
 
-// Social represents a social media profile of an author.
+// Social represents a social media links.
 type Social struct {
 
 	// ID is the unique identifier of the quote.

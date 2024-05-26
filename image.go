@@ -17,9 +17,13 @@ type Image struct {
 	// This field is required and should be a valid URL.
 	URL string `json:"url" validate:"url,max=4096"`
 
-	// AltText is the alternative text for the image.
+	// Title is the title for the image.
+	// This field is optional.
+	Title string `json:"title,omitempty" validate:"max=500"`
+
+	// Alt is the alternative text for the image.
 	// This field is required and should be between 1 and 255 characters long.
-	AltText string `json:"alt_text" validate:"max=255"`
+	Alt string `json:"alt" validate:"max=255"`
 
 	// Width is the width of the image in pixels.
 	// This field is optional.
@@ -28,10 +32,6 @@ type Image struct {
 	// Height is the height of the image in pixels.
 	// This field is optional.
 	Height int `json:"height,omitempty" validate:"min=0"`
-
-	// Caption is the caption for the image.
-	// This field is optional.
-	Caption string `json:"caption,omitempty" validate:"max=500"`
 }
 
 // NewImage creates a new Image with a random UUID.
@@ -53,8 +53,8 @@ func (i *Image) Normalize() {
 
 	i.ID = TrimToMaxLen(i.ID, 36)
 	i.URL = TrimToMaxLen(i.URL, 4096)
-	i.AltText = TrimToMaxLen(i.AltText, 255)
-	i.Caption = TrimToMaxLen(i.Caption, 500)
+	i.Alt = TrimToMaxLen(i.Alt, 255)
+	i.Title = TrimToMaxLen(i.Title, 500)
 
 	err := validate.Struct(i)
 	if err != nil {
@@ -68,24 +68,24 @@ func (i *Image) Normalize() {
 // Map converts the Image struct to a map[string]any.
 func (i *Image) Map() map[string]any {
 	return map[string]any{
-		"id":       i.ID,
-		"url":      i.URL,
-		"alt_text": i.AltText,
-		"width":    i.Width,
-		"height":   i.Height,
-		"caption":  i.Caption,
+		"id":     i.ID,
+		"url":    i.URL,
+		"alt":    i.Alt,
+		"width":  i.Width,
+		"height": i.Height,
+		"title":  i.Title,
 	}
 }
 
 // NewImageFromMap creates an Image from a map[string]any, validates it, and returns a pointer to the Image or an error.
 func NewImageFromMap(m map[string]any) (*Image, error) {
 	img := &Image{
-		ID:      StringFromMap(m, "id"),
-		URL:     StringFromMap(m, "url"),
-		AltText: StringFromMap(m, "alt_text"),
-		Width:   IntFromMap(m, "width"),
-		Height:  IntFromMap(m, "height"),
-		Caption: StringFromMap(m, "caption"),
+		ID:     StringFromMap(m, "id"),
+		URL:    StringFromMap(m, "url"),
+		Alt:    StringFromMap(m, "alt"),
+		Width:  IntFromMap(m, "width"),
+		Height: IntFromMap(m, "height"),
+		Title:  StringFromMap(m, "title"),
 	}
 
 	err := validate.Struct(img)

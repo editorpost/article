@@ -10,10 +10,10 @@ import (
 
 func fakeVideo() *article.Video {
 	return &article.Video{
-		ID:        gofakeit.UUID(),
-		URL:       gofakeit.URL(),
-		EmbedCode: gofakeit.LoremIpsumSentence(10),
-		Caption:   gofakeit.LoremIpsumSentence(5),
+		ID:    gofakeit.UUID(),
+		URL:   gofakeit.URL(),
+		Embed: gofakeit.LoremIpsumSentence(10),
+		Title: gofakeit.LoremIpsumSentence(5),
 	}
 }
 

@@ -32,6 +32,63 @@ func main() {
 }
 ```
 
+And Full example of JSON output or Article with nested structures:
+```json
+
+ 
+ {
+ 	"id": "string (required, uuid4, max=36)",
+ 	"title": "string (required, max=255)",
+ 	"summary": "string (max=255)",
+ 	"html": "string (required, max=65000)",
+ 	"text": "string (required, max=65000)",
+ 	"excerpt": "string (max=500)",
+ 	"source": "string (omitempty, url, max=4096)",
+ 	"language": "string (max=255)",
+ 	"category": "string (max=255)",
+ 	"site": "string (max=255)",
+ 	"published": "time.Time (required)",
+ 	"modified": "time.Time",
+ 	"images": [
+ 		{
+ 			"id": "string (required, uuid4, max=36)",
+ 			"url": "string (required, url, max=4096)",
+ 			"title": "string (max=500)",
+ 			"alt": "string (required, max=255)",
+ 			"width": "int",
+ 			"height": "int"
+ 		}
+ 	],
+ 	"videos": [
+ 		{
+ 			"id": "string (required, uuid4, max=36)",
+ 			"url": "string (required, url, max=4096)",
+ 			"embed": "string (max=65000)",
+ 			"title": "string (max=500)"
+ 		}
+ 	],
+ 	"quotes": [
+ 		{
+ 			"id": "string (required, uuid4, max=36)",
+ 			"text": "string (required, max=65000)",
+ 			"author": "string (max=255)",
+ 			"source": "string (required, url, max=4096)",
+ 			"platform": "string (max=255)"
+ 		}
+ 	],
+ 	"tags": [
+ 		"string"
+ 	],
+ 	"socials": [
+ 		{
+ 			"id": "string (required, uuid4, max=36)",
+ 			"platform": "string (max=255)",
+ 			"url": "string (max=4096)"
+ 		}
+ 	]
+ }
+```
+
 This documentation provides a comprehensive guide to using the `article` package, covering architecture, usage, and validation limits. By following these guidelines, developers can ensure that their articles are well-structured and validated.
 ## Article Package Documentation
 
@@ -66,7 +123,7 @@ The `article` package is built around the `Article` struct, which includes vario
 The package enforces several validation limits to ensure data consistency and prevent overflow attacks:
 
 - **URL Fields**: Maximum length of 4096 characters.
-- **Text Fields**: Trimmed and limited to specific lengths (e.g., title: 255 characters, caption: 500 characters).
+- **Text Fields**: Trimmed and limited to specific lengths (e.g., title: 255 characters, title: 500 characters).
 - **Author Name**: Limited to 255 characters.
 - **Language Code**: Must be a valid ISO 639-1 code (2 characters).
 - **Content**: Text content fields are limited to 65000 characters.

@@ -12,17 +12,17 @@ import (
 
 func TestVideoNormalize(t *testing.T) {
 	v := &article.Video{
-		URL:       "  " + gofakeit.URL() + "  ",
-		EmbedCode: "  " + gofakeit.Sentence(100) + "  ",
-		Caption:   "  " + gofakeit.Sentence(10) + "  ",
+		URL:   "  " + gofakeit.URL() + "  ",
+		Embed: "  " + gofakeit.Sentence(100) + "  ",
+		Title: "  " + gofakeit.Sentence(10) + "  ",
 	}
 
 	v.Normalize()
 
 	assert.NotEmpty(t, v.URL)
 	assert.Equal(t, strings.TrimSpace(v.URL), v.URL)
-	assert.Equal(t, strings.TrimSpace(v.EmbedCode), v.EmbedCode)
-	assert.Equal(t, strings.TrimSpace(v.Caption), v.Caption)
+	assert.Equal(t, strings.TrimSpace(v.Embed), v.Embed)
+	assert.Equal(t, strings.TrimSpace(v.Title), v.Title)
 }
 
 // TestVideoConversions is a table-driven test for the Video struct.
@@ -43,26 +43,26 @@ func TestVideoConversions(t *testing.T) {
 		{
 			name: "Valid Video",
 			inputMap: map[string]any{
-				"id":         "123e4567-e89b-12d3-a456-426614174000",
-				"url":        "https://example.com/video.mp4",
-				"embed_code": "<iframe src='https://example.com/video'></iframe>",
-				"caption":    "An example caption",
+				"id":    "123e4567-e89b-12d3-a456-426614174000",
+				"url":   "https://example.com/video.mp4",
+				"embed": "<iframe src='https://example.com/video'></iframe>",
+				"title": "An example title",
 			},
 			expectedVideo: &article.Video{
-				ID:        "123e4567-e89b-12d3-a456-426614174000",
-				URL:       "https://example.com/video.mp4",
-				EmbedCode: "<iframe src='https://example.com/video'></iframe>",
-				Caption:   "An example caption",
+				ID:    "123e4567-e89b-12d3-a456-426614174000",
+				URL:   "https://example.com/video.mp4",
+				Embed: "<iframe src='https://example.com/video'></iframe>",
+				Title: "An example title",
 			},
 			expectError: false,
 		},
 		{
 			name: "Invalid URL",
 			inputMap: map[string]any{
-				"id":         "123e4567-e89b-12d3-a456-426614174000",
-				"url":        "invalid-url",
-				"embed_code": "<iframe src='https://example.com/video'></iframe>",
-				"caption":    "An example caption",
+				"id":    "123e4567-e89b-12d3-a456-426614174000",
+				"url":   "invalid-url",
+				"embed": "<iframe src='https://example.com/video'></iframe>",
+				"title": "An example title",
 			},
 			expectedVideo: nil,
 			expectError:   true,
@@ -70,7 +70,7 @@ func TestVideoConversions(t *testing.T) {
 		{
 			name: "Missing Required Fields",
 			inputMap: map[string]any{
-				"caption": "Some caption, but no URL",
+				"title": "Some title, but no URL",
 			},
 			expectedVideo: nil,
 			expectError:   true,
@@ -78,14 +78,14 @@ func TestVideoConversions(t *testing.T) {
 		{
 			name: "Zero Value Fields",
 			inputMap: map[string]any{
-				"url":        "",
-				"embed_code": "",
-				"caption":    "",
+				"url":   "",
+				"embed": "",
+				"title": "",
 			},
 			expectedVideo: &article.Video{
-				URL:       "",
-				EmbedCode: "",
-				Caption:   "",
+				URL:   "",
+				Embed: "",
+				Title: "",
 			},
 			expectError: true,
 		},
