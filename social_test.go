@@ -42,10 +42,12 @@ func TestSocialProfileConversions(t *testing.T) {
 		{
 			name: "Valid SocialProfile",
 			inputMap: map[string]any{
+				"id":       "123e4567-e89b-12d3-a456-426614174000",
 				"platform": "Twitter",
 				"url":      "https://twitter.com/example",
 			},
 			expectedSocialProfile: &article.SocialProfile{
+				ID:       "123e4567-e89b-12d3-a456-426614174000",
 				Platform: "Twitter",
 				URL:      "https://twitter.com/example",
 			},

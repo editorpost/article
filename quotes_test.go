@@ -24,7 +24,7 @@ func TestNewQuotesStrict(t *testing.T) {
 		quote2 := fakeQuote()
 		quotes, err := article.NewQuotesStrict(quote1, quote2)
 		assert.NoError(t, err)
-		assert.Equal(t, 2, quotes.Count())
+		assert.Equal(t, 2, quotes.Len())
 	})
 
 	t.Run("invalid quotes", func(t *testing.T) {
@@ -42,7 +42,7 @@ func TestNewQuotes(t *testing.T) {
 		quote2 := &article.Quote{ID: "", Text: ""}
 		quote3 := fakeQuote()
 		quotes := article.NewQuotes(quote1, quote2, quote3)
-		assert.Equal(t, 2, quotes.Count())
+		assert.Equal(t, 2, quotes.Len())
 	})
 }
 
@@ -70,7 +70,7 @@ func TestQuotes_Add(t *testing.T) {
 	quote3 := fakeQuote()
 
 	quotes.Add(quote1, quote2, quote3)
-	assert.Equal(t, 2, quotes.Count())
+	assert.Equal(t, 2, quotes.Len())
 }
 
 func TestQuotes_Remove(t *testing.T) {
@@ -80,15 +80,15 @@ func TestQuotes_Remove(t *testing.T) {
 
 	t.Run("remove existing quote", func(t *testing.T) {
 		quotes.Remove(quote1.ID)
-		assert.Equal(t, 1, quotes.Count())
+		assert.Equal(t, 1, quotes.Len())
 		_, found := quotes.Get(quote1.ID)
 		assert.False(t, found)
 	})
 
 	t.Run("remove non-existing quote", func(t *testing.T) {
-		initialCount := quotes.Count()
+		initialCount := quotes.Len()
 		quotes.Remove(gofakeit.UUID())
-		assert.Equal(t, initialCount, quotes.Count())
+		assert.Equal(t, initialCount, quotes.Len())
 	})
 }
 
@@ -105,12 +105,12 @@ func TestQuotes_IDs(t *testing.T) {
 
 func TestQuotes_Count(t *testing.T) {
 	quotes := article.NewQuotes()
-	assert.Equal(t, 0, quotes.Count())
+	assert.Equal(t, 0, quotes.Len())
 
 	quote1 := fakeQuote()
 	quote2 := fakeQuote()
 	quotes.Add(quote1, quote2)
-	assert.Equal(t, 2, quotes.Count())
+	assert.Equal(t, 2, quotes.Len())
 }
 
 func TestQuotes_Filter(t *testing.T) {
@@ -122,21 +122,21 @@ func TestQuotes_Filter(t *testing.T) {
 		filtered := quotes.Filter(func(quote *article.Quote) bool {
 			return true
 		})
-		assert.Equal(t, 2, filtered.Count())
+		assert.Equal(t, 2, filtered.Len())
 	})
 
 	t.Run("filter with always false function", func(t *testing.T) {
 		filtered := quotes.Filter(func(quote *article.Quote) bool {
 			return false
 		})
-		assert.Equal(t, 0, filtered.Count())
+		assert.Equal(t, 0, filtered.Len())
 	})
 
 	t.Run("filter with specific condition", func(t *testing.T) {
 		filtered := quotes.Filter(func(quote *article.Quote) bool {
 			return quote.ID == quote1.ID
 		})
-		assert.Equal(t, 1, filtered.Count())
+		assert.Equal(t, 1, filtered.Len())
 		assert.Equal(t, quote1.ID, filtered.IDs()[0])
 	})
 }

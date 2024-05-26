@@ -43,6 +43,11 @@ func (v *Videos) Get(id string) (*Video, bool) {
 	return nil, false
 }
 
+// Slice returns a slice of all videos
+func (v *Videos) Slice() []*Video {
+	return v.videos
+}
+
 // Add adds videos to the collection
 func (v *Videos) Add(videos ...*Video) *Videos {
 	for _, video := range videos {
@@ -82,8 +87,8 @@ func (v *Videos) IDs() []string {
 	return ids
 }
 
-// Count returns the number of videos
-func (v *Videos) Count() int {
+// Len returns the number of videos
+func (v *Videos) Len() int {
 	return len(v.videos)
 }
 

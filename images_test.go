@@ -21,7 +21,7 @@ func TestNewImagesStrict(t *testing.T) {
 		img2 := fakeImage()
 		images, err := article.NewImagesStrict(img1, img2)
 		assert.NoError(t, err)
-		assert.Equal(t, 2, images.Count())
+		assert.Equal(t, 2, images.Len())
 	})
 
 	t.Run("invalid images", func(t *testing.T) {
@@ -40,7 +40,7 @@ func TestNewImages(t *testing.T) {
 		img2 := &article.Image{ID: ""}
 		img3 := fakeImage()
 		images := article.NewImages(img1, img2, img3)
-		assert.Equal(t, 2, images.Count())
+		assert.Equal(t, 2, images.Len())
 	})
 }
 
@@ -68,7 +68,7 @@ func TestImages_Add(t *testing.T) {
 	img3 := fakeImage()
 
 	images.Add(img1, img2, img3)
-	assert.Equal(t, 2, images.Count())
+	assert.Equal(t, 2, images.Len())
 }
 
 func TestImages_Remove(t *testing.T) {
@@ -78,15 +78,15 @@ func TestImages_Remove(t *testing.T) {
 
 	t.Run("remove existing image", func(t *testing.T) {
 		images.Remove(img1.ID)
-		assert.Equal(t, 1, images.Count())
+		assert.Equal(t, 1, images.Len())
 		_, found := images.Get(img1.ID)
 		assert.False(t, found)
 	})
 
 	t.Run("remove non-existing image", func(t *testing.T) {
-		initialCount := images.Count()
+		initialCount := images.Len()
 		images.Remove(gofakeit.UUID())
-		assert.Equal(t, initialCount, images.Count())
+		assert.Equal(t, initialCount, images.Len())
 	})
 }
 
@@ -103,12 +103,12 @@ func TestImages_IDs(t *testing.T) {
 
 func TestImages_Count(t *testing.T) {
 	images := article.NewImages()
-	assert.Equal(t, 0, images.Count())
+	assert.Equal(t, 0, images.Len())
 
 	img1 := fakeImage()
 	img2 := fakeImage()
 	images.Add(img1, img2)
-	assert.Equal(t, 2, images.Count())
+	assert.Equal(t, 2, images.Len())
 }
 
 func TestImages_Filter(t *testing.T) {
@@ -120,21 +120,21 @@ func TestImages_Filter(t *testing.T) {
 		filtered := images.Filter(func(img *article.Image) bool {
 			return true
 		})
-		assert.Equal(t, 2, filtered.Count())
+		assert.Equal(t, 2, filtered.Len())
 	})
 
 	t.Run("filter with always false function", func(t *testing.T) {
 		filtered := images.Filter(func(img *article.Image) bool {
 			return false
 		})
-		assert.Equal(t, 0, filtered.Count())
+		assert.Equal(t, 0, filtered.Len())
 	})
 
 	t.Run("filter with specific condition", func(t *testing.T) {
 		filtered := images.Filter(func(img *article.Image) bool {
 			return img.ID == img1.ID
 		})
-		assert.Equal(t, 1, filtered.Count())
+		assert.Equal(t, 1, filtered.Len())
 		assert.Equal(t, img1.ID, filtered.IDs()[0])
 	})
 }

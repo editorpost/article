@@ -43,6 +43,11 @@ func (q *Quotes) Get(id string) (*Quote, bool) {
 	return nil, false
 }
 
+// Slice returns a slice of all quotes
+func (q *Quotes) Slice() []*Quote {
+	return q.quotes
+}
+
 // Add adds quotes to the collection
 func (q *Quotes) Add(quotes ...*Quote) *Quotes {
 	for _, quote := range quotes {
@@ -82,8 +87,8 @@ func (q *Quotes) IDs() []string {
 	return ids
 }
 
-// Count returns the number of quotes
-func (q *Quotes) Count() int {
+// Len returns the number of quotes
+func (q *Quotes) Len() int {
 	return len(q.quotes)
 }
 

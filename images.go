@@ -50,6 +50,11 @@ func (i *Images) Get(id string) (*Image, bool) {
 	return nil, false
 }
 
+// Slice returns a slice of all images
+func (i *Images) Slice() []*Image {
+	return i.images
+}
+
 // Add adds images to the collection
 func (i *Images) Add(images ...*Image) *Images {
 	for _, img := range images {
@@ -89,8 +94,8 @@ func (i *Images) IDs() []string {
 	return ids
 }
 
-// Count returns the number of images
-func (i *Images) Count() int {
+// Len returns the number of images
+func (i *Images) Len() int {
 	return len(i.images)
 }
 

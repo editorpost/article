@@ -45,44 +45,41 @@ func TestFullInvariantArticle(t *testing.T) {
 	// Optional fields
 	expected.Byline = gofakeit.Name()
 	expected.Excerpt = gofakeit.Sentence(10)
-	expected.Images = []article.Image{
-		{
-			ID:      gofakeit.UUID(),
-			URL:     gofakeit.URL(),
-			AltText: gofakeit.Sentence(5),
-			Width:   gofakeit.Number(800, 1920),
-			Height:  gofakeit.Number(600, 1080),
-			Caption: gofakeit.Sentence(10),
-		},
-	}
-	expected.Videos = []article.Video{
-		{
-			ID:        gofakeit.UUID(),
-			URL:       gofakeit.URL(),
-			EmbedCode: "<iframe src='" + gofakeit.URL() + "'></iframe>",
-			Caption:   gofakeit.Sentence(10),
-		},
-	}
-	expected.Quotes = []article.Quote{
-		{
-			ID:       gofakeit.UUID(),
-			Text:     gofakeit.Sentence(15),
-			Author:   gofakeit.Name(),
-			Source:   gofakeit.URL(),
-			Platform: "Twitter",
-		},
-	}
-	expected.Tags = []string{"travel", "Phuket", "Thailand"}
+
+	expected.Images = article.NewImages(&article.Image{
+		ID:      gofakeit.UUID(),
+		URL:     gofakeit.URL(),
+		AltText: gofakeit.Sentence(5),
+		Width:   gofakeit.Number(800, 1920),
+		Height:  gofakeit.Number(600, 1080),
+		Caption: gofakeit.Sentence(10),
+	})
+
+	expected.Videos = article.NewVideos(&article.Video{
+		ID:        gofakeit.UUID(),
+		URL:       gofakeit.URL(),
+		EmbedCode: "<iframe src='" + gofakeit.URL() + "'></iframe>",
+		Caption:   gofakeit.Sentence(10),
+	})
+
+	expected.Quotes = article.NewQuotes(&article.Quote{
+		ID:       gofakeit.UUID(),
+		Text:     gofakeit.Sentence(15),
+		Author:   gofakeit.Name(),
+		Source:   gofakeit.URL(),
+		Platform: "Twitter",
+	})
+
+	expected.Tags = article.NewTags("travel", "Phuket", "Thailand")
 	expected.Source = gofakeit.URL()
 	expected.Language = "en"
 	expected.Category = "Travel"
 	expected.SiteName = "Example Travel Blog"
-	expected.AuthorSocialProfiles = []article.SocialProfile{
-		{
-			Platform: "Twitter",
-			URL:      gofakeit.URL(),
-		},
-	}
+
+	expected.AuthorSocialProfiles = article.NewSocialProfiles(&article.SocialProfile{
+		Platform: "Twitter",
+		URL:      gofakeit.URL(),
+	})
 
 	got, err := article.NewArticleFromMap(expected.Map())
 	require.NoError(t, err)
@@ -102,16 +99,16 @@ func TestInvalidNestedStructureArticle(t *testing.T) {
 	// Optional fields with invalid nested structure
 	expected.Byline = gofakeit.Name()
 	expected.Excerpt = gofakeit.Sentence(10)
-	expected.Images = []article.Image{
-		{
-			URL:     "invalid-url",
-			AltText: gofakeit.Sentence(5),
-			Width:   gofakeit.Number(800, 1920),
-			Height:  gofakeit.Number(600, 1080),
-			Caption: gofakeit.Sentence(10),
-		},
-	}
-	expected.Tags = []string{"travel", "Phuket", "Thailand"}
+
+	expected.Images = article.NewImages(&article.Image{
+		URL:     "invalid-url",
+		AltText: gofakeit.Sentence(5),
+		Width:   gofakeit.Number(800, 1920),
+		Height:  gofakeit.Number(600, 1080),
+		Caption: gofakeit.Sentence(10),
+	})
+
+	expected.Tags = article.NewTags("travel", "Phuket", "Thailand")
 	expected.Source = gofakeit.URL()
 	expected.Language = "en"
 	expected.Category = "Travel"
@@ -121,7 +118,7 @@ func TestInvalidNestedStructureArticle(t *testing.T) {
 	inputMap := expected.Map()
 
 	// Expect the images to be nil due to invalid URL in the nested structure
-	expected.Images = []article.Image{}
+	expected.Images = article.NewImages()
 
 	got, err := article.NewArticleFromMap(inputMap)
 	require.NoError(t, err)
@@ -162,51 +159,47 @@ func TestArticleNormalize(t *testing.T) {
 	// Optional fields with some invalid data
 	expected.Byline = gofakeit.Name()
 	expected.Excerpt = gofakeit.Sentence(10)
-	expected.Images = []article.Image{
-		{
-			URL:     "invalid-url",
-			AltText: gofakeit.Sentence(5),
-			Width:   gofakeit.Number(800, 1920),
-			Height:  gofakeit.Number(600, 1080),
-			Caption: gofakeit.Sentence(10),
-		},
-	}
-	expected.Videos = []article.Video{
-		{
-			URL:       "invalid-url",
-			EmbedCode: "<iframe src='invalid-url'></iframe>",
-			Caption:   gofakeit.Sentence(10),
-		},
-	}
-	expected.Quotes = []article.Quote{
-		{
-			Text:     "",
-			Author:   gofakeit.Name(),
-			Source:   "invalid-url",
-			Platform: "Twitter",
-		},
-	}
-	expected.Tags = []string{"travel", "Phuket", "Thailand"}
+
+	expected.Images = article.NewImages(&article.Image{
+		URL:     "invalid-url",
+		AltText: gofakeit.Sentence(5),
+		Width:   gofakeit.Number(800, 1920),
+		Height:  gofakeit.Number(600, 1080),
+		Caption: gofakeit.Sentence(10),
+	})
+
+	expected.Videos = article.NewVideos(&article.Video{
+		URL:       "invalid-url",
+		EmbedCode: "<iframe src='invalid-url'></iframe>",
+		Caption:   gofakeit.Sentence(10),
+	})
+
+	expected.Quotes = article.NewQuotes(&article.Quote{
+		Text:     "",
+		Author:   gofakeit.Name(),
+		Source:   "invalid-url",
+		Platform: "Twitter",
+	})
+
+	expected.Tags = article.NewTags("travel", "Phuket", "Thailand")
 	expected.Source = "invalid-url"
 	expected.Language = "en"
 	expected.Category = "Travel"
 	expected.SiteName = "Example Travel Blog"
-	expected.AuthorSocialProfiles = []article.SocialProfile{
-		{
-			Platform: "Twitter",
-			URL:      "invalid-url",
-		},
-	}
+
+	expected.AuthorSocialProfiles = article.NewSocialProfiles(&article.SocialProfile{
+		Platform: "Twitter",
+		URL:      "invalid-url",
+	})
 
 	expected.Normalize()
 
 	// Verify that invalid fields are cleared
-	assert.Equal(t, "", expected.Images[0].URL)
-	assert.Equal(t, "", expected.Videos[0].URL)
-	assert.Equal(t, "", expected.Quotes[0].Text)
-	assert.Equal(t, "", expected.Quotes[0].Source)
+	assert.Empty(t, expected.Images.Slice())
+	assert.Empty(t, expected.Videos.Slice())
+	assert.Empty(t, expected.Quotes.Slice())
+	assert.Empty(t, "", expected.AuthorSocialProfiles.Slice())
 	assert.Equal(t, "", expected.Source)
-	assert.Equal(t, "", expected.AuthorSocialProfiles[0].URL)
 }
 
 func TestArticleNormalizeFieldClearing(t *testing.T) {

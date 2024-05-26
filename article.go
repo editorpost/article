@@ -21,11 +21,11 @@ func NewArticle() *Article {
 	return &Article{
 		ID:                   uuid.New().String(),
 		Language:             "en",
-		Tags:                 []string{},
-		Images:               []Image{},
-		Videos:               []Video{},
-		Quotes:               []Quote{},
-		AuthorSocialProfiles: []SocialProfile{},
+		Tags:                 NewTags(),
+		Images:               NewImages(),
+		Videos:               NewVideos(),
+		Quotes:               NewQuotes(),
+		AuthorSocialProfiles: NewSocialProfiles(),
 	}
 }
 
@@ -41,15 +41,15 @@ type Article struct {
 	Excerpt              string          `json:"article__excerpt" validate:"max=500"`
 	PublishDate          time.Time       `json:"article__publish_date" validate:"required"`
 	ModifiedDate         time.Time       `json:"article__modified_date"`
-	Images               []Image         `json:"article__images"`
-	Videos               []Video         `json:"article__videos"`
-	Quotes               []Quote         `json:"article__quotes"`
-	Tags                 []string        `json:"article__tags"`
+	Images               *Images         `json:"article__images"`
+	Videos               *Videos         `json:"article__videos"`
+	Quotes               *Quotes         `json:"article__quotes"`
+	Tags                 *Tags           `json:"article__tags"`
 	Source               string          `json:"article__source" validate:"omitempty,url,max=4096"`
 	Language             string          `json:"article__language" validate:"max=255"`
 	Category             string          `json:"article__category" validate:"max=255"`
 	SiteName             string          `json:"article__site_name" validate:"max=255"`
-	AuthorSocialProfiles []SocialProfile `json:"article__author_social_profiles"`
+	AuthorSocialProfiles *SocialProfiles `json:"article__author_social_profiles"`
 }
 
 // Normalize validates the Article and its nested structures, logs any validation errors, and clears invalid fields.
@@ -102,39 +102,32 @@ func (a *Article) Normalize() {
 	}
 
 	// Normalize nested structures
-	for i := range a.Images {
-		a.Images[i].Normalize()
-	}
-	for i := range a.Videos {
-		a.Videos[i].Normalize()
-	}
-	for i := range a.Quotes {
-		a.Quotes[i].Normalize()
-	}
-	for i := range a.AuthorSocialProfiles {
-		a.AuthorSocialProfiles[i].Normalize()
-	}
+	a.Images.Normalize()
+	a.Videos.Normalize()
+	a.Quotes.Normalize()
+	a.AuthorSocialProfiles.Normalize()
 }
 
 // Map converts the Article struct to a map[string]any, including nested structures.
 func (a *Article) Map() map[string]any {
-	images := make([]map[string]any, len(a.Images))
-	for i, image := range a.Images {
+
+	images := make([]map[string]any, a.Images.Len())
+	for i, image := range a.Images.Slice() {
 		images[i] = image.Map()
 	}
 
-	videos := make([]map[string]any, len(a.Videos))
-	for i, video := range a.Videos {
+	videos := make([]map[string]any, a.Videos.Len())
+	for i, video := range a.Videos.Slice() {
 		videos[i] = video.Map()
 	}
 
-	quotes := make([]map[string]any, len(a.Quotes))
-	for i, quote := range a.Quotes {
+	quotes := make([]map[string]any, a.Quotes.Len())
+	for i, quote := range a.Quotes.Slice() {
 		quotes[i] = quote.Map()
 	}
 
-	socialProfiles := make([]map[string]any, len(a.AuthorSocialProfiles))
-	for i, profile := range a.AuthorSocialProfiles {
+	socialProfiles := make([]map[string]any, a.AuthorSocialProfiles.Len())
+	for i, profile := range a.AuthorSocialProfiles.Slice() {
 		socialProfiles[i] = profile.Map()
 	}
 
@@ -150,7 +143,7 @@ func (a *Article) Map() map[string]any {
 		"article__quotes":                 quotes,
 		"article__publish_date":           a.PublishDate,
 		"article__modified_date":          a.ModifiedDate,
-		"article__tags":                   a.Tags,
+		"article__tags":                   a.Tags.Slice(),
 		"article__source":                 a.Source,
 		"article__language":               a.Language,
 		"article__category":               a.Category,
@@ -161,38 +154,39 @@ func (a *Article) Map() map[string]any {
 
 // NewArticleFromMap creates an Article from a map[string]any, validates it, and returns a pointer to the Article or an error.
 func NewArticleFromMap(m map[string]any) (*Article, error) {
-	images := make([]Image, 0)
+
+	images := NewImages()
 	if imgMaps, ok := m["article__images"].([]map[string]any); ok {
 		for _, imgMap := range imgMaps {
 			if img, err := NewImageFromMap(imgMap); err == nil {
-				images = append(images, *img)
+				images.Add(img)
 			}
 		}
 	}
 
-	videos := make([]Video, 0)
+	videos := NewVideos()
 	if vidMaps, ok := m["article__videos"].([]map[string]any); ok {
 		for _, vidMap := range vidMaps {
 			if vid, err := NewVideoFromMap(vidMap); err == nil {
-				videos = append(videos, *vid)
+				videos.Add(vid)
 			}
 		}
 	}
 
-	quotes := make([]Quote, 0)
+	quotes := NewQuotes()
 	if quoteMaps, ok := m["article__quotes"].([]map[string]any); ok {
 		for _, quoteMap := range quoteMaps {
 			if quote, err := NewQuoteFromMap(quoteMap); err == nil {
-				quotes = append(quotes, *quote)
+				quotes.Add(quote)
 			}
 		}
 	}
 
-	socialProfiles := make([]SocialProfile, 0)
+	social := NewSocialProfiles()
 	if profileMaps, ok := m["article__author_social_profiles"].([]map[string]any); ok {
 		for _, profileMap := range profileMaps {
 			if profile, err := NewSocialProfileFromMap(profileMap); err == nil {
-				socialProfiles = append(socialProfiles, *profile)
+				social.Add(profile)
 			}
 		}
 	}
@@ -212,12 +206,12 @@ func NewArticleFromMap(m map[string]any) (*Article, error) {
 		Quotes:               quotes,
 		PublishDate:          publishDate,
 		ModifiedDate:         modifiedDate,
-		Tags:                 GetStringSlice(m, "article__tags"),
+		Tags:                 NewTags(GetStringSlice(m, "article__tags")...),
 		Source:               StringFromMap(m, "article__source"),
 		Language:             StringFromMap(m, "article__language"),
 		Category:             StringFromMap(m, "article__category"),
 		SiteName:             StringFromMap(m, "article__site_name"),
-		AuthorSocialProfiles: socialProfiles,
+		AuthorSocialProfiles: social,
 	}
 
 	err := validate.Struct(article)

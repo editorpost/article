@@ -23,7 +23,7 @@ func TestNewVideosStrict(t *testing.T) {
 		video2 := fakeVideo()
 		videos, err := article.NewVideosStrict(video1, video2)
 		assert.NoError(t, err)
-		assert.Equal(t, 2, videos.Count())
+		assert.Equal(t, 2, videos.Len())
 	})
 
 	t.Run("invalid videos", func(t *testing.T) {
@@ -41,7 +41,7 @@ func TestNewVideos(t *testing.T) {
 		video2 := &article.Video{ID: "", URL: "invalid"}
 		video3 := fakeVideo()
 		videos := article.NewVideos(video1, video2, video3)
-		assert.Equal(t, 2, videos.Count())
+		assert.Equal(t, 2, videos.Len())
 	})
 }
 
@@ -69,7 +69,7 @@ func TestVideos_Add(t *testing.T) {
 	video3 := fakeVideo()
 
 	videos.Add(video1, video2, video3)
-	assert.Equal(t, 2, videos.Count())
+	assert.Equal(t, 2, videos.Len())
 }
 
 func TestVideos_Remove(t *testing.T) {
@@ -79,15 +79,15 @@ func TestVideos_Remove(t *testing.T) {
 
 	t.Run("remove existing video", func(t *testing.T) {
 		videos.Remove(video1.ID)
-		assert.Equal(t, 1, videos.Count())
+		assert.Equal(t, 1, videos.Len())
 		_, found := videos.Get(video1.ID)
 		assert.False(t, found)
 	})
 
 	t.Run("remove non-existing video", func(t *testing.T) {
-		initialCount := videos.Count()
+		initialCount := videos.Len()
 		videos.Remove(gofakeit.UUID())
-		assert.Equal(t, initialCount, videos.Count())
+		assert.Equal(t, initialCount, videos.Len())
 	})
 }
 
@@ -104,12 +104,12 @@ func TestVideos_IDs(t *testing.T) {
 
 func TestVideos_Count(t *testing.T) {
 	videos := article.NewVideos()
-	assert.Equal(t, 0, videos.Count())
+	assert.Equal(t, 0, videos.Len())
 
 	video1 := fakeVideo()
 	video2 := fakeVideo()
 	videos.Add(video1, video2)
-	assert.Equal(t, 2, videos.Count())
+	assert.Equal(t, 2, videos.Len())
 }
 
 func TestVideos_Filter(t *testing.T) {
@@ -121,21 +121,21 @@ func TestVideos_Filter(t *testing.T) {
 		filtered := videos.Filter(func(video *article.Video) bool {
 			return true
 		})
-		assert.Equal(t, 2, filtered.Count())
+		assert.Equal(t, 2, filtered.Len())
 	})
 
 	t.Run("filter with always false function", func(t *testing.T) {
 		filtered := videos.Filter(func(video *article.Video) bool {
 			return false
 		})
-		assert.Equal(t, 0, filtered.Count())
+		assert.Equal(t, 0, filtered.Len())
 	})
 
 	t.Run("filter with specific condition", func(t *testing.T) {
 		filtered := videos.Filter(func(video *article.Video) bool {
 			return video.ID == video1.ID
 		})
-		assert.Equal(t, 1, filtered.Count())
+		assert.Equal(t, 1, filtered.Len())
 		assert.Equal(t, video1.ID, filtered.IDs()[0])
 	})
 }
