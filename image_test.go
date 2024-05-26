@@ -28,6 +28,7 @@ func TestImageConversions(t *testing.T) {
 		{
 			name: "Valid Image",
 			inputMap: map[string]any{
+				"id":       "123e4567-e89b-12d3-a456-426614174000",
 				"url":      "https://example.com/image.jpg",
 				"alt_text": "An example image",
 				"width":    800,
@@ -35,6 +36,7 @@ func TestImageConversions(t *testing.T) {
 				"caption":  "An example caption",
 			},
 			expectedImage: &article.Image{
+				ID:      "123e4567-e89b-12d3-a456-426614174000",
 				URL:     "https://example.com/image.jpg",
 				AltText: "An example image",
 				Width:   800,

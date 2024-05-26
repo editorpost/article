@@ -2,11 +2,17 @@ package article
 
 import (
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"log/slog"
 )
 
 // Image represents an image in the article.
 type Image struct {
+
+	// ID is the unique identifier of the image.
+	// It is stable enough to be used as a key in a storage system.
+	ID string `json:"id" validate:"required"`
+
 	// URL is the URL of the image.
 	// This field is required and should be a valid URL.
 	URL string `json:"url" validate:"url,max=4096"`
@@ -31,6 +37,10 @@ type Image struct {
 // Normalize validates and trims the fields of the Image.
 func (i *Image) Normalize() {
 
+	if i.ID == "" {
+		i.ID = uuid.New().String()
+	}
+
 	i.URL = TrimToMaxLen(i.URL, 4096)
 	i.AltText = TrimToMaxLen(i.AltText, 255)
 	i.Caption = TrimToMaxLen(i.Caption, 500)
@@ -47,6 +57,7 @@ func (i *Image) Normalize() {
 // Map converts the Image struct to a map[string]any.
 func (i *Image) Map() map[string]any {
 	return map[string]any{
+		"id":       i.ID,
 		"url":      i.URL,
 		"alt_text": i.AltText,
 		"width":    i.Width,
@@ -58,11 +69,12 @@ func (i *Image) Map() map[string]any {
 // NewImageFromMap creates an Image from a map[string]any, validates it, and returns a pointer to the Image or an error.
 func NewImageFromMap(m map[string]any) (*Image, error) {
 	img := &Image{
-		URL:     getString(m, "url"),
-		AltText: getString(m, "alt_text"),
-		Width:   getInt(m, "width"),
-		Height:  getInt(m, "height"),
-		Caption: getString(m, "caption"),
+		ID:      StringFromMap(m, "id"),
+		URL:     StringFromMap(m, "url"),
+		AltText: StringFromMap(m, "alt_text"),
+		Width:   IntFromMap(m, "width"),
+		Height:  IntFromMap(m, "height"),
+		Caption: StringFromMap(m, "caption"),
 	}
 
 	err := validate.Struct(img)
@@ -73,8 +85,8 @@ func NewImageFromMap(m map[string]any) (*Image, error) {
 	return img, nil
 }
 
-// getString safely extracts a string from the map or returns a zero value.
-func getString(m map[string]any, key string) string {
+// StringFromMap safely extracts a string from the map or returns a zero value.
+func StringFromMap(m map[string]any, key string) string {
 	if value, exists := m[key]; exists {
 		if str, ok := value.(string); ok {
 			return str
@@ -83,8 +95,8 @@ func getString(m map[string]any, key string) string {
 	return ""
 }
 
-// getInt safely extracts an int from the map or returns a zero value.
-func getInt(m map[string]any, key string) int {
+// IntFromMap safely extracts an int from the map or returns a zero value.
+func IntFromMap(m map[string]any, key string) int {
 	if value, exists := m[key]; exists {
 		if i, ok := value.(int); ok {
 			return i
