@@ -68,11 +68,11 @@ func (a *Article) Normalize() {
 
 	err := validate.Struct(a)
 	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			slog.Debug("Validation error", slog.String("field", err.Namespace()), slog.String("error", err.Tag()))
+		for _, invalid := range err.(validator.ValidationErrors) {
+			slog.Debug("Validation error", slog.String("field", invalid.Namespace()), slog.String("error", invalid.Tag()))
 
 			// Clear invalid fields
-			switch err.Namespace() {
+			switch invalid.Namespace() {
 			case "Article.ID":
 				a.ID = ""
 			case "Article.Title":
