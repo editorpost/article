@@ -6,23 +6,23 @@ import "encoding/json"
 // This structure provides a flexible and universal foundation for storing and working with various types of content,
 // allowing for easy creation and modification of articles, as well as integration of media and social elements.
 //type Article struct {
-//	ID          string    `json:"article__id" validate:"required,uuid4,max=36"`
-//	Title       string    `json:"article__title" validate:"required,max=255"`
-//	Byline      string    `json:"article__byline" validate:"max=255"`
-//	HTML        string    `json:"article__html" validate:"required,max=65000"`
-//	TextContent string    `json:"article__text" validate:"required,max=65000"`
-//	Excerpt     string    `json:"article__excerpt" validate:"max=500"`
-//	Published   time.Time `json:"article__published" validate:"required"`
-//	Modified    time.Time `json:"article__modified"`
-//	Images      *Images   `json:"article__images"`
-//	Videos      *Videos   `json:"article__videos"`
-//	Quotes      *Quotes   `json:"article__quotes"`
-//	Tags        *Tags     `json:"article__tags"`
-//	Socials     *Socials  `json:"article__socials"`
-//	Source      string    `json:"article__source" validate:"omitempty,url,max=4096"`
-//	Language    string    `json:"article__language" validate:"max=255"`
-//	Category    string    `json:"article__category" validate:"max=255"`
-//	SiteName    string    `json:"article__site" validate:"max=255"`
+//	ID          string    `json:"id" validate:"required,uuid4,max=36"`
+//	Title       string    `json:"title" validate:"required,max=255"`
+//	Summary      string    `json:"summary" validate:"max=255"`
+//	HTML        string    `json:"html" validate:"required,max=65000"`
+//	Text string    `json:"text" validate:"required,max=65000"`
+//	Excerpt     string    `json:"excerpt" validate:"max=500"`
+//	Published   time.Time `json:"published" validate:"required"`
+//	Modified    time.Time `json:"modified"`
+//	Images      *Images   `json:"images"`
+//	Videos      *Videos   `json:"videos"`
+//	Quotes      *Quotes   `json:"quotes"`
+//	Tags        *Tags     `json:"tags"`
+//	Socials     *Socials  `json:"socials"`
+//	Source      string    `json:"source" validate:"omitempty,url,max=4096"`
+//	Language    string    `json:"language" validate:"max=255"`
+//	Category    string    `json:"category" validate:"max=255"`
+//	SiteName    string    `json:"site" validate:"max=255"`
 //}
 
 type Articles struct {
@@ -104,7 +104,7 @@ func (list *Articles) Normalize() {
 // Maps converts the Articles struct to a []map[string]any, including nested structures.
 func (list *Articles) Maps() []map[string]any {
 
-	var result []map[string]any
+	result := make([]map[string]any, 0, len(list.items))
 
 	for _, article := range list.items {
 		result = append(result, article.Map())

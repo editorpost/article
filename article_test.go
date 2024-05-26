@@ -23,7 +23,7 @@ func TestMinimalInvariantArticle(t *testing.T) {
 	// required fields
 	expected.Title = gofakeit.Sentence(3)
 	expected.HTML = gofakeit.Paragraph(1, 5, 10, " ")
-	expected.TextContent = gofakeit.Paragraph(1, 5, 10, " ")
+	expected.Text = gofakeit.Paragraph(1, 5, 10, " ")
 	expected.Published = time.Now()
 
 	got, err := article.NewArticleFromMap(expected.Map())
@@ -39,12 +39,12 @@ func TestFullInvariantArticle(t *testing.T) {
 	// Required fields
 	expected.Title = gofakeit.Sentence(3)
 	expected.HTML = gofakeit.Paragraph(1, 5, 10, " ")
-	expected.TextContent = gofakeit.Paragraph(1, 5, 10, " ")
+	expected.Text = gofakeit.Paragraph(1, 5, 10, " ")
 	expected.Published = time.Now()
 	expected.Modified = time.Now()
 
 	// Optional fields
-	expected.Byline = gofakeit.Name()
+	expected.Summary = gofakeit.Name()
 	expected.Excerpt = gofakeit.Sentence(10)
 
 	expected.Images = article.NewImages(&article.Image{
@@ -93,12 +93,12 @@ func TestInvalidNestedStructureArticle(t *testing.T) {
 	// Required fields
 	expected.Title = gofakeit.Sentence(3)
 	expected.HTML = gofakeit.Paragraph(1, 5, 10, " ")
-	expected.TextContent = gofakeit.Paragraph(1, 5, 10, " ")
+	expected.Text = gofakeit.Paragraph(1, 5, 10, " ")
 	expected.Published = time.Now()
 	expected.Modified = time.Now()
 
 	// Optional fields with invalid nested structure
-	expected.Byline = gofakeit.Name()
+	expected.Summary = gofakeit.Name()
 	expected.Excerpt = gofakeit.Sentence(10)
 
 	expected.Images = article.NewImages(&article.Image{
@@ -127,9 +127,9 @@ func TestInvalidNestedStructureArticle(t *testing.T) {
 	// To compare Published and Modified separately due to possible time differences
 	assert.Equal(t, expected.ID, got.ID)
 	assert.Equal(t, expected.Title, got.Title)
-	assert.Equal(t, expected.Byline, got.Byline)
+	assert.Equal(t, expected.Summary, got.Summary)
 	assert.Equal(t, expected.HTML, got.HTML)
-	assert.Equal(t, expected.TextContent, got.TextContent)
+	assert.Equal(t, expected.Text, got.Text)
 	assert.Equal(t, expected.Excerpt, got.Excerpt)
 	assert.Equal(t, expected.Images, got.Images)
 	assert.WithinDuration(t, expected.Published, got.Published, time.Second)
@@ -153,12 +153,12 @@ func TestArticleNormalize(t *testing.T) {
 	// Required fields
 	expected.Title = gofakeit.Sentence(3)
 	expected.HTML = gofakeit.Paragraph(1, 5, 10, " ")
-	expected.TextContent = gofakeit.Paragraph(1, 5, 10, " ")
+	expected.Text = gofakeit.Paragraph(1, 5, 10, " ")
 	expected.Published = time.Now()
 	expected.Modified = time.Now()
 
 	// Optional fields with some invalid data
-	expected.Byline = gofakeit.Name()
+	expected.Summary = gofakeit.Name()
 	expected.Excerpt = gofakeit.Sentence(10)
 
 	expected.Images = article.NewImages(&article.Image{
@@ -210,13 +210,13 @@ func TestArticleNormalizeFieldClearing(t *testing.T) {
 	// Set required fields with valid data
 	invalid.Title = gofakeit.Sentence(3)
 	invalid.HTML = gofakeit.Paragraph(1, 5, 10, " ")
-	invalid.TextContent = gofakeit.Paragraph(1, 5, 10, " ")
+	invalid.Text = gofakeit.Paragraph(1, 5, 10, " ")
 	invalid.Published = time.Now()
 	invalid.Modified = time.Now()
 
 	// Set invalid data for optional fields
 	invalid.ID = "invalid-uuid"
-	invalid.Byline = gofakeit.Name()
+	invalid.Summary = gofakeit.Name()
 	invalid.Excerpt = gofakeit.Sentence(10)
 	invalid.Source = "invalid-url"
 	invalid.Language = "english" // should be a valid ISO 639-1 language code
@@ -228,7 +228,7 @@ func TestArticleNormalizeFieldClearing(t *testing.T) {
 
 	// Verify that invalid fields are cleared
 	assert.Equal(t, "", valid.ID)
-	assert.Equal(t, invalid.Byline, valid.Byline)   // should not be cleared since it's not required
+	assert.Equal(t, invalid.Summary, valid.Summary) // should not be cleared since it's not required
 	assert.Equal(t, invalid.Excerpt, valid.Excerpt) // should not be cleared since it's not required
 	assert.Equal(t, "", valid.Source)
 	assert.Equal(t, "english", valid.Language)
@@ -256,15 +256,15 @@ func TestTrimToMaxLen(t *testing.T) {
 func TestUnmarshal(t *testing.T) {
 
 	js := `{
-		  "article__id": "123e4567-e89b-12d3-a456-426614174000",
-		  "article__title": "The Rise of AI",
-		  "article__byline": "By John Doe",
-		  "article__html": "<p>Artificial Intelligence is transforming the world.</p>",
-		  "article__text": "Artificial Intelligence is transforming the world.",
-		  "article__excerpt": "An overview of how AI is changing various industries.",
-		  "article__published": "2024-05-27T10:00:00Z",
-		  "article__modified": "2024-05-28T12:00:00Z",
-		  "article__images": [
+		  "id": "123e4567-e89b-12d3-a456-426614174000",
+		  "title": "The Rise of AI",
+		  "summary": "By John Doe",
+		  "html": "<p>Artificial Intelligence is transforming the world.</p>",
+		  "text": "Artificial Intelligence is transforming the world.",
+		  "excerpt": "An overview of how AI is changing various industries.",
+		  "published": "2024-05-27T10:00:00Z",
+		  "modified": "2024-05-28T12:00:00Z",
+		  "images": [
 			  {
 				"id": "img-001",
 				"url": "https://example.com/image1.jpg",
@@ -274,7 +274,7 @@ func TestUnmarshal(t *testing.T) {
 				"caption": "An illustration representing AI."
 			  }
           ],
-		  "article__videos": [
+		  "videos": [
 			  {
 				"id": "vid-001",
 				"url": "https://example.com/video1.mp4",
@@ -282,7 +282,7 @@ func TestUnmarshal(t *testing.T) {
 				"caption": "A video explaining AI."
 			  }
 		  ],
-		  "article__quotes": [
+		  "quotes": [
 			  {
 				"id": "quote-001",
 				"text": "AI is the future of technology.",
@@ -291,12 +291,12 @@ func TestUnmarshal(t *testing.T) {
 				"platform": "Twitter"
 			  }
 		  ],
-		  "article__tags": ["AI", "Technology", "Future"],
-		  "article__source": "https://example.com",
-		  "article__language": "en",
-		  "article__category": "Technology",
-		  "article__site": "Tech News",
-		  "article__socials": [
+		  "tags": ["AI", "Technology", "Future"],
+		  "source": "https://example.com",
+		  "language": "en",
+		  "category": "Technology",
+		  "site": "Tech News",
+		  "socials": [
 			  {
 				"id": "sp-001",
 				"platform": "Twitter",
@@ -313,9 +313,9 @@ func TestUnmarshal(t *testing.T) {
 	// check the values of the Article fields
 	assert.Equal(t, "123e4567-e89b-12d3-a456-426614174000", art.ID)
 	assert.Equal(t, "The Rise of AI", art.Title)
-	assert.Equal(t, "By John Doe", art.Byline)
+	assert.Equal(t, "By John Doe", art.Summary)
 	assert.Equal(t, "<p>Artificial Intelligence is transforming the world.</p>", art.HTML)
-	assert.Equal(t, "Artificial Intelligence is transforming the world.", art.TextContent)
+	assert.Equal(t, "Artificial Intelligence is transforming the world.", art.Text)
 	assert.Equal(t, "An overview of how AI is changing various industries.", art.Excerpt)
 	assert.Equal(t, "2024-05-27T10:00:00Z", art.Published.Format(time.RFC3339))
 	assert.Equal(t, "2024-05-28T12:00:00Z", art.Modified.Format(time.RFC3339))
