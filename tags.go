@@ -24,11 +24,6 @@ func NewTags(tags ...string) *Tags {
 	return &Tags{tags: validTags}
 }
 
-// NewTagsFromString creates a collection of tags from a comma-separated string
-func NewTagsFromString(str string) *Tags {
-	return NewTags(strings.Split(str, ",")...)
-}
-
 // String returns a comma-separated list of tags
 func (list *Tags) String() string {
 	return strings.Join(list.tags, ",")

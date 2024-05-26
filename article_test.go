@@ -308,7 +308,7 @@ func TestUnmarshal(t *testing.T) {
 	// use encoding/json to unmarshal the JSON string into Article
 
 	art := article.Article{}
-	json.Unmarshal([]byte(js), &art)
+	require.NoError(t, json.Unmarshal([]byte(js), &art))
 
 	// check the values of the Article fields
 	assert.Equal(t, "123e4567-e89b-12d3-a456-426614174000", art.ID)

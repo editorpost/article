@@ -30,6 +30,7 @@ type Quote struct {
 	Platform string `json:"platform" validate:"max=255"`
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func NewQuote(text string) *Quote {
 	return &Quote{
 		ID:   uuid.New().String(),

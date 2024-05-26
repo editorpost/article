@@ -22,6 +22,7 @@ type Social struct {
 	URL string `json:"url" validate:"required,url,max=4096"`
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func NewSocial(platform, url string) *Social {
 	return &Social{
 		ID:       uuid.New().String(),

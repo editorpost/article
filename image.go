@@ -35,6 +35,8 @@ type Image struct {
 }
 
 // NewImage creates a new Image with a random UUID.
+//
+//goland:noinspection GoUnusedExportedFunction
 func NewImage(url string) *Image {
 	return &Image{
 		ID:  uuid.New().String(),

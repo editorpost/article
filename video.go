@@ -27,6 +27,8 @@ type Video struct {
 }
 
 // NewVideo creates a new Video with a random UUID.
+//
+//goland:noinspection GoUnusedExportedFunction
 func NewVideo(url string) *Video {
 	return &Video{
 		ID:  uuid.New().String(),

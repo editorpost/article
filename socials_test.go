@@ -5,11 +5,8 @@ import (
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/editorpost/article"
-	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 )
-
-var validate = validator.New()
 
 func fakeSocialProfile() *article.Social {
 	return &article.Social{
