@@ -54,10 +54,10 @@ func (q *Quote) Map() map[string]any {
 // NewQuoteFromMap creates a Quote from a map[string]any, validates it, and returns a pointer to the Quote or an error.
 func NewQuoteFromMap(m map[string]any) (*Quote, error) {
 	quote := &Quote{
-		Text:     getString(m, "text"),
-		Author:   getString(m, "author"),
-		Source:   getString(m, "source"),
-		Platform: getString(m, "platform"),
+		Text:     StringFromMap(m, "text"),
+		Author:   StringFromMap(m, "author"),
+		Source:   StringFromMap(m, "source"),
+		Platform: StringFromMap(m, "platform"),
 	}
 
 	err := validate.Struct(quote)

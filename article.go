@@ -201,22 +201,22 @@ func NewArticleFromMap(m map[string]any) (*Article, error) {
 	modifiedDate, _ := m["article__modified_date"].(time.Time)
 
 	article := &Article{
-		ID:                   getString(m, "article__id"),
-		Title:                getString(m, "article__title"),
-		Byline:               getString(m, "article__byline"),
-		Content:              getString(m, "article__content"),
-		TextContent:          getString(m, "article__text_content"),
-		Excerpt:              getString(m, "article__excerpt"),
+		ID:                   StringFromMap(m, "article__id"),
+		Title:                StringFromMap(m, "article__title"),
+		Byline:               StringFromMap(m, "article__byline"),
+		Content:              StringFromMap(m, "article__content"),
+		TextContent:          StringFromMap(m, "article__text_content"),
+		Excerpt:              StringFromMap(m, "article__excerpt"),
 		Images:               images,
 		Videos:               videos,
 		Quotes:               quotes,
 		PublishDate:          publishDate,
 		ModifiedDate:         modifiedDate,
 		Tags:                 GetStringSlice(m, "article__tags"),
-		Source:               getString(m, "article__source"),
-		Language:             getString(m, "article__language"),
-		Category:             getString(m, "article__category"),
-		SiteName:             getString(m, "article__site_name"),
+		Source:               StringFromMap(m, "article__source"),
+		Language:             StringFromMap(m, "article__language"),
+		Category:             StringFromMap(m, "article__category"),
+		SiteName:             StringFromMap(m, "article__site_name"),
 		AuthorSocialProfiles: socialProfiles,
 	}
 

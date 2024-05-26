@@ -8,8 +8,8 @@ import (
 // NewSocialProfileFromMap creates a SocialProfile from a map[string]any, validates it, and returns a pointer to the SocialProfile or an error.
 func NewSocialProfileFromMap(m map[string]any) (*SocialProfile, error) {
 	profile := &SocialProfile{
-		Platform: getString(m, "platform"),
-		URL:      getString(m, "url"),
+		Platform: StringFromMap(m, "platform"),
+		URL:      StringFromMap(m, "url"),
 	}
 
 	err := validate.Struct(profile)
