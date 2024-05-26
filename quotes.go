@@ -23,7 +23,7 @@ func NewQuotesStrict(quotes ...*Quote) (*Quotes, error) {
 
 // NewQuotes creates a collection, skips invalid items, and logs errors
 func NewQuotes(quotes ...*Quote) *Quotes {
-	validQuotes := []*Quote{}
+	var validQuotes []*Quote
 	for _, quote := range quotes {
 		if err := validate.Struct(quote); err == nil {
 			validQuotes = append(validQuotes, quote)
@@ -68,7 +68,7 @@ func (list *Quotes) Remove(ids ...string) *Quotes {
 		idSet[id] = struct{}{}
 	}
 
-	filteredQuotes := []*Quote{}
+	var filteredQuotes []*Quote
 	for _, quote := range list.items {
 		if _, found := idSet[quote.ID]; !found {
 			filteredQuotes = append(filteredQuotes, quote)
@@ -95,7 +95,7 @@ func (list *Quotes) Len() int {
 
 // Filter returns a new Quotes collection filtered by the provided functions
 func (list *Quotes) Filter(fns ...func(*Quote) bool) *Quotes {
-	filteredQuotes := []*Quote{}
+	var filteredQuotes []*Quote
 	for _, quote := range list.items {
 		include := true
 		for _, fn := range fns {
@@ -118,7 +118,7 @@ func (list *Quotes) Normalize() {
 	}
 }
 
-// UnmarshalJSON to array of images using encoding/json
+// UnmarshalJSON to array of items using encoding/json
 func (list *Quotes) UnmarshalJSON(data []byte) error {
 
 	// Unmarshal to a slice of Image
@@ -133,7 +133,7 @@ func (list *Quotes) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// MarshalJSON from array of images using encoding/json
+// MarshalJSON from array of items using encoding/json
 func (list *Quotes) MarshalJSON() ([]byte, error) {
 	return json.Marshal(list.items)
 }

@@ -2,48 +2,58 @@ package article
 
 import (
 	"encoding/json"
-	"errors"
 	"log"
+	"log/slog"
 )
 
 // Images represents a collection of Image pointers
 type Images struct {
-	images []*Image
+	items []*Image
 }
 
 // NewImagesStrict creates a collection and validates every image
 func NewImagesStrict(images ...*Image) (*Images, error) {
-	for _, img := range images {
-		if img == nil || img.ID == "" {
-			return nil, errors.New("invalid image: must not be nil and must have an ID")
+
+	var valid []*Image
+
+	for _, image := range images {
+
+		if err := validate.Struct(image); err != nil {
+			return nil, err
 		}
+
+		valid = append(valid, image)
 	}
-	return &Images{images: images}, nil
+
+	return &Images{items: valid}, nil
 }
 
-// NewImages creates a collection, skips invalid images, and logs errors
+// NewImages creates a collection, skips invalid items, and logs errors
 func NewImages(images ...*Image) *Images {
-	validImages := []*Image{}
-	for _, img := range images {
-		if img != nil && img.ID != "" {
-			validImages = append(validImages, img)
+
+	var valid []*Image
+
+	for _, image := range images {
+		if err := validate.Struct(image); err == nil {
+			valid = append(valid, image)
 		} else {
-			log.Printf("Invalid image skipped: %+v", img)
+			slog.Debug("Invalid image skipped: %v", err)
 		}
 	}
-	return &Images{images: validImages}
+
+	return &Images{items: valid}
 }
 
-// Normalize validates and trims the fields of all images
+// Normalize validates and trims the fields of all items
 func (list *Images) Normalize() {
-	for _, img := range list.images {
+	for _, img := range list.items {
 		img.Normalize()
 	}
 }
 
 // Get returns the image by ID
 func (list *Images) Get(id string) (*Image, bool) {
-	for _, img := range list.images {
+	for _, img := range list.items {
 		if img.ID == id {
 			return img, true
 		}
@@ -51,16 +61,16 @@ func (list *Images) Get(id string) (*Image, bool) {
 	return nil, false
 }
 
-// Slice returns a slice of all images
+// Slice returns a slice of all items
 func (list *Images) Slice() []*Image {
-	return list.images
+	return list.items
 }
 
-// Add adds images to the collection
+// Add adds items to the collection
 func (list *Images) Add(images ...*Image) *Images {
 	for _, img := range images {
 		if img != nil && img.ID != "" {
-			list.images = append(list.images, img)
+			list.items = append(list.items, img)
 		} else {
 			log.Printf("Invalid image skipped: %+v", img)
 		}
@@ -68,42 +78,42 @@ func (list *Images) Add(images ...*Image) *Images {
 	return list
 }
 
-// Remove removes images by ID
+// Remove removes items by ID
 func (list *Images) Remove(ids ...string) *Images {
 	idSet := make(map[string]struct{}, len(ids))
 	for _, id := range ids {
 		idSet[id] = struct{}{}
 	}
 
-	filteredImages := []*Image{}
-	for _, img := range list.images {
+	var filteredImages []*Image
+	for _, img := range list.items {
 		if _, found := idSet[img.ID]; !found {
 			filteredImages = append(filteredImages, img)
 		}
 	}
 
-	list.images = filteredImages
+	list.items = filteredImages
 	return list
 }
 
 // IDs returns a slice of all image IDs
 func (list *Images) IDs() []string {
-	ids := make([]string, len(list.images))
-	for idx, img := range list.images {
+	ids := make([]string, len(list.items))
+	for idx, img := range list.items {
 		ids[idx] = img.ID
 	}
 	return ids
 }
 
-// Len returns the number of images
+// Len returns the number of items
 func (list *Images) Len() int {
-	return len(list.images)
+	return len(list.items)
 }
 
 // Filter returns a new Images collection filtered by the provided functions
 func (list *Images) Filter(fns ...func(*Image) bool) *Images {
-	filteredImages := []*Image{}
-	for _, img := range list.images {
+	var filteredImages []*Image
+	for _, img := range list.items {
 		include := true
 		for _, fn := range fns {
 			if !fn(img) {
@@ -115,10 +125,10 @@ func (list *Images) Filter(fns ...func(*Image) bool) *Images {
 			filteredImages = append(filteredImages, img)
 		}
 	}
-	return &Images{images: filteredImages}
+	return &Images{items: filteredImages}
 }
 
-// UnmarshalJSON to array of images using encoding/json
+// UnmarshalJSON to array of items using encoding/json
 func (list *Images) UnmarshalJSON(data []byte) error {
 
 	// Unmarshal to a slice of Image
@@ -133,7 +143,7 @@ func (list *Images) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// MarshalJSON from array of images using encoding/json
-func (list Images) MarshalJSON() ([]byte, error) {
-	return json.Marshal(list.images)
+// MarshalJSON from array of items using encoding/json
+func (list *Images) MarshalJSON() ([]byte, error) {
+	return json.Marshal(list.items)
 }

@@ -13,7 +13,7 @@ type Socials struct {
 
 // NewSocials creates a collection, skips invalid social items, and logs errors
 func NewSocials(profiles ...*Social) *Socials {
-	validProfiles := []*Social{}
+	var validProfiles []*Social
 	for _, profile := range profiles {
 		if err := validate.Struct(profile); err == nil {
 			validProfiles = append(validProfiles, profile)
@@ -68,7 +68,7 @@ func (list *Socials) Remove(ids ...string) *Socials {
 		idSet[id] = struct{}{}
 	}
 
-	filteredProfiles := []*Social{}
+	var filteredProfiles []*Social
 	for _, profile := range list.items {
 		if _, found := idSet[profile.ID]; !found {
 			filteredProfiles = append(filteredProfiles, profile)
@@ -95,7 +95,7 @@ func (list *Socials) Len() int {
 
 // Filter returns a new Socials collection filtered by the provided functions
 func (list *Socials) Filter(fns ...func(*Social) bool) *Socials {
-	filteredProfiles := []*Social{}
+	var filteredProfiles []*Social
 	for _, profile := range list.items {
 		include := true
 		for _, fn := range fns {
@@ -118,7 +118,7 @@ func (list *Socials) Normalize() {
 	}
 }
 
-// UnmarshalJSON to array of images using encoding/json
+// UnmarshalJSON to array of items using encoding/json
 func (list *Socials) UnmarshalJSON(data []byte) error {
 
 	// Unmarshal to a slice of Image
@@ -133,7 +133,7 @@ func (list *Socials) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// MarshalJSON from array of images using encoding/json
+// MarshalJSON from array of items using encoding/json
 func (list *Socials) MarshalJSON() ([]byte, error) {
 	return json.Marshal(list.items)
 }

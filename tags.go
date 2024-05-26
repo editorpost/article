@@ -12,7 +12,7 @@ type Tags struct {
 func NewTags(tags ...string) *Tags {
 
 	// skip empty tags
-	validTags := []string{}
+	var validTags []string
 
 	for _, tag := range tags {
 		tag = strings.TrimSpace(tag)
@@ -57,7 +57,7 @@ func (list *Tags) Contains(tag string) bool {
 
 // Remove removes a tag from the collection
 func (list *Tags) Remove(tag string) *Tags {
-	filteredTags := []string{}
+	var filteredTags []string
 	for _, match := range list.tags {
 		if match != tag {
 			filteredTags = append(filteredTags, match)
@@ -72,7 +72,7 @@ func (list *Tags) Len() int {
 	return len(list.tags)
 }
 
-// UnmarshalJSON to array of images using encoding/json
+// UnmarshalJSON to array of items using encoding/json
 func (list *Tags) UnmarshalJSON(data []byte) error {
 
 	// Unmarshal to a slice of Image
@@ -87,7 +87,7 @@ func (list *Tags) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// MarshalJSON from array of images using encoding/json
-func (list Tags) MarshalJSON() ([]byte, error) {
+// MarshalJSON from array of items using encoding/json
+func (list *Tags) MarshalJSON() ([]byte, error) {
 	return json.Marshal(list.tags)
 }

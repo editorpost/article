@@ -118,7 +118,7 @@ func TestInvalidNestedStructureArticle(t *testing.T) {
 	// Convert expected Article to map and then back to Article to simulate input processing
 	inputMap := expected.Map()
 
-	// Expect the images to be nil due to invalid URL in the nested structure
+	// Expect the items to be nil due to invalid URL in the nested structure
 	expected.Images = article.NewImages()
 
 	got, err := article.NewArticleFromMap(inputMap)
@@ -219,7 +219,7 @@ func TestArticleNormalizeFieldClearing(t *testing.T) {
 	invalid.Byline = gofakeit.Name()
 	invalid.Excerpt = gofakeit.Sentence(10)
 	invalid.Source = "invalid-url"
-	invalid.Language = "inglese" // should be a valid ISO 639-1 language code
+	invalid.Language = "english" // should be a valid ISO 639-1 language code
 	invalid.Category = gofakeit.Sentence(2)
 	invalid.SiteName = gofakeit.Sentence(2)
 
@@ -231,7 +231,7 @@ func TestArticleNormalizeFieldClearing(t *testing.T) {
 	assert.Equal(t, invalid.Byline, valid.Byline)   // should not be cleared since it's not required
 	assert.Equal(t, invalid.Excerpt, valid.Excerpt) // should not be cleared since it's not required
 	assert.Equal(t, "", valid.Source)
-	assert.Equal(t, "inglese", valid.Language)
+	assert.Equal(t, "english", valid.Language)
 	assert.Equal(t, invalid.Category, valid.Category)
 	assert.Equal(t, invalid.SiteName, valid.SiteName)
 }
@@ -245,8 +245,8 @@ func TestGetStringSlice(t *testing.T) {
 
 func TestTrimToMaxLen(t *testing.T) {
 	s := "This is a test string with more than twenty characters."
-	trimmed := article.TrimToMaxLen(s, 20)
-	assert.Equal(t, "This is a test strin", trimmed)
+	trimmed := article.TrimToMaxLen(s, 21)
+	assert.Equal(t, "This is a test string", trimmed)
 
 	s = "Short string"
 	trimmed = article.TrimToMaxLen(s, 20)

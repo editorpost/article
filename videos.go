@@ -23,7 +23,7 @@ func NewVideosStrict(videos ...*Video) (*Videos, error) {
 
 // NewVideos creates a collection, skips invalid videos, and logs errors
 func NewVideos(videos ...*Video) *Videos {
-	validVideos := []*Video{}
+	var validVideos []*Video
 	for _, video := range videos {
 		if err := validate.Struct(video); err == nil {
 			validVideos = append(validVideos, video)
@@ -68,7 +68,7 @@ func (list *Videos) Remove(ids ...string) *Videos {
 		idSet[id] = struct{}{}
 	}
 
-	filteredVideos := []*Video{}
+	var filteredVideos []*Video
 	for _, video := range list.videos {
 		if _, found := idSet[video.ID]; !found {
 			filteredVideos = append(filteredVideos, video)
@@ -95,7 +95,7 @@ func (list *Videos) Len() int {
 
 // Filter returns a new Videos collection filtered by the provided functions
 func (list *Videos) Filter(fns ...func(*Video) bool) *Videos {
-	filteredVideos := []*Video{}
+	var filteredVideos []*Video
 	for _, video := range list.videos {
 		include := true
 		for _, fn := range fns {
@@ -118,7 +118,7 @@ func (list *Videos) Normalize() {
 	}
 }
 
-// UnmarshalJSON to array of images using encoding/json
+// UnmarshalJSON to array of items using encoding/json
 func (list *Videos) UnmarshalJSON(data []byte) error {
 
 	// Unmarshal to a slice of Image
@@ -133,7 +133,7 @@ func (list *Videos) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// MarshalJSON from array of images using encoding/json
-func (list Videos) MarshalJSON() ([]byte, error) {
+// MarshalJSON from array of items using encoding/json
+func (list *Videos) MarshalJSON() ([]byte, error) {
 	return json.Marshal(list.videos)
 }
