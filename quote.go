@@ -21,9 +21,9 @@ type Quote struct {
 	// This field is required and should be between 1 and 255 characters long.
 	Author string `json:"author" validate:"max=255"`
 
-	// Source is the source URL of the quote.
+	// SourceURL is the source URL of the quote.
 	// This field is required and should be a valid URL.
-	Source string `json:"source" validate:"url,max=4096"`
+	SourceURL string `json:"source_url" validate:"url,max=4096"`
 
 	// Platform is the platform of the quote (e.g., Twitter, Facebook).
 	// This field is required and should be between 1 and 50 characters long.
@@ -48,7 +48,7 @@ func (q *Quote) Normalize() {
 	q.ID = TrimToMaxLen(q.ID, 36)
 	q.Text = TrimToMaxLen(q.Text, 65000)
 	q.Author = TrimToMaxLen(q.Author, 255)
-	q.Source = TrimToMaxLen(q.Source, 4096)
+	q.SourceURL = TrimToMaxLen(q.SourceURL, 4096)
 	q.Platform = TrimToMaxLen(q.Platform, 255)
 
 	err := validate.Struct(q)
@@ -63,22 +63,22 @@ func (q *Quote) Normalize() {
 // Map converts the Quote struct to a map[string]any.
 func (q *Quote) Map() map[string]any {
 	return map[string]any{
-		"id":       q.ID,
-		"text":     q.Text,
-		"author":   q.Author,
-		"source":   q.Source,
-		"platform": q.Platform,
+		"id":         q.ID,
+		"text":       q.Text,
+		"author":     q.Author,
+		"source_url": q.SourceURL,
+		"platform":   q.Platform,
 	}
 }
 
 // NewQuoteFromMap creates a Quote from a map[string]any, validates it, and returns a pointer to the Quote or an error.
 func NewQuoteFromMap(m map[string]any) (*Quote, error) {
 	quote := &Quote{
-		ID:       StringFromMap(m, "id"),
-		Text:     StringFromMap(m, "text"),
-		Author:   StringFromMap(m, "author"),
-		Source:   StringFromMap(m, "source"),
-		Platform: StringFromMap(m, "platform"),
+		ID:        StringFromMap(m, "id"),
+		Text:      StringFromMap(m, "text"),
+		Author:    StringFromMap(m, "author"),
+		SourceURL: StringFromMap(m, "source_url"),
+		Platform:  StringFromMap(m, "platform"),
 	}
 
 	err := validate.Struct(quote)

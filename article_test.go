@@ -22,7 +22,7 @@ func TestMinimalInvariantArticle(t *testing.T) {
 
 	// required fields
 	expected.Title = gofakeit.Sentence(3)
-	expected.HTML = gofakeit.Paragraph(1, 5, 10, " ")
+	expected.Markup = gofakeit.Paragraph(1, 5, 10, " ")
 	expected.Text = gofakeit.Paragraph(1, 5, 10, " ")
 	expected.Published = time.Now()
 
@@ -38,14 +38,14 @@ func TestFullInvariantArticle(t *testing.T) {
 
 	// Required fields
 	expected.Title = gofakeit.Sentence(3)
-	expected.HTML = gofakeit.Paragraph(1, 5, 10, " ")
+	expected.Markup = gofakeit.Paragraph(1, 5, 10, " ")
 	expected.Text = gofakeit.Paragraph(1, 5, 10, " ")
 	expected.Published = time.Now()
 	expected.Modified = time.Now()
 
 	// Optional fields
 	expected.Summary = gofakeit.Name()
-	expected.Excerpt = gofakeit.Sentence(10)
+	expected.Genre = gofakeit.Sentence(10)
 
 	expected.Images = article.NewImages(&article.Image{
 		ID:     gofakeit.UUID(),
@@ -64,18 +64,18 @@ func TestFullInvariantArticle(t *testing.T) {
 	})
 
 	expected.Quotes = article.NewQuotes(&article.Quote{
-		ID:       gofakeit.UUID(),
-		Text:     gofakeit.Sentence(15),
-		Author:   gofakeit.Name(),
-		Source:   gofakeit.URL(),
-		Platform: "Twitter",
+		ID:        gofakeit.UUID(),
+		Text:      gofakeit.Sentence(15),
+		Author:    gofakeit.Name(),
+		SourceURL: gofakeit.URL(),
+		Platform:  "Twitter",
 	})
 
 	expected.Tags = article.NewTags("travel", "Phuket", "Thailand")
-	expected.Source = gofakeit.URL()
+	expected.SourceURL = gofakeit.URL()
 	expected.Language = "en"
 	expected.Category = "Travel"
-	expected.SiteName = "Example Travel Blog"
+	expected.SourceName = "Example Travel Blog"
 
 	expected.Socials = article.NewSocials(&article.Social{
 		Platform: "Twitter",
@@ -92,14 +92,14 @@ func TestInvalidNestedStructureArticle(t *testing.T) {
 
 	// Required fields
 	expected.Title = gofakeit.Sentence(3)
-	expected.HTML = gofakeit.Paragraph(1, 5, 10, " ")
+	expected.Markup = gofakeit.Paragraph(1, 5, 10, " ")
 	expected.Text = gofakeit.Paragraph(1, 5, 10, " ")
 	expected.Published = time.Now()
 	expected.Modified = time.Now()
 
 	// Optional fields with invalid nested structure
 	expected.Summary = gofakeit.Name()
-	expected.Excerpt = gofakeit.Sentence(10)
+	expected.Genre = gofakeit.Sentence(10)
 
 	expected.Images = article.NewImages(&article.Image{
 		URL:    "invalid-url",
@@ -110,10 +110,10 @@ func TestInvalidNestedStructureArticle(t *testing.T) {
 	})
 
 	expected.Tags = article.NewTags("travel", "Phuket", "Thailand")
-	expected.Source = gofakeit.URL()
+	expected.SourceURL = gofakeit.URL()
 	expected.Language = "en"
 	expected.Category = "Travel"
-	expected.SiteName = "Example Travel Blog"
+	expected.SourceName = "Example Travel Blog"
 
 	// Convert expected Article to map and then back to Article to simulate input processing
 	inputMap := expected.Map()
@@ -128,17 +128,17 @@ func TestInvalidNestedStructureArticle(t *testing.T) {
 	assert.Equal(t, expected.ID, got.ID)
 	assert.Equal(t, expected.Title, got.Title)
 	assert.Equal(t, expected.Summary, got.Summary)
-	assert.Equal(t, expected.HTML, got.HTML)
+	assert.Equal(t, expected.Markup, got.Markup)
 	assert.Equal(t, expected.Text, got.Text)
-	assert.Equal(t, expected.Excerpt, got.Excerpt)
+	assert.Equal(t, expected.Genre, got.Genre)
 	assert.Equal(t, expected.Images, got.Images)
 	assert.WithinDuration(t, expected.Published, got.Published, time.Second)
 	assert.WithinDuration(t, expected.Modified, got.Modified, time.Second)
 	assert.Equal(t, expected.Tags, got.Tags)
-	assert.Equal(t, expected.Source, got.Source)
+	assert.Equal(t, expected.SourceURL, got.SourceURL)
 	assert.Equal(t, expected.Language, got.Language)
 	assert.Equal(t, expected.Category, got.Category)
-	assert.Equal(t, expected.SiteName, got.SiteName)
+	assert.Equal(t, expected.SourceName, got.SourceName)
 }
 
 func TestMissingRequiredFieldsArticle(t *testing.T) {
@@ -152,14 +152,14 @@ func TestArticleNormalize(t *testing.T) {
 
 	// Required fields
 	expected.Title = gofakeit.Sentence(3)
-	expected.HTML = gofakeit.Paragraph(1, 5, 10, " ")
+	expected.Markup = gofakeit.Paragraph(1, 5, 10, " ")
 	expected.Text = gofakeit.Paragraph(1, 5, 10, " ")
 	expected.Published = time.Now()
 	expected.Modified = time.Now()
 
 	// Optional fields with some invalid data
 	expected.Summary = gofakeit.Name()
-	expected.Excerpt = gofakeit.Sentence(10)
+	expected.Genre = gofakeit.Sentence(10)
 
 	expected.Images = article.NewImages(&article.Image{
 		URL:    "invalid-url",
@@ -176,17 +176,17 @@ func TestArticleNormalize(t *testing.T) {
 	})
 
 	expected.Quotes = article.NewQuotes(&article.Quote{
-		Text:     "",
-		Author:   gofakeit.Name(),
-		Source:   "invalid-url",
-		Platform: "Twitter",
+		Text:      "",
+		Author:    gofakeit.Name(),
+		SourceURL: "invalid-url",
+		Platform:  "Twitter",
 	})
 
 	expected.Tags = article.NewTags("travel", "Phuket", "Thailand")
-	expected.Source = "invalid-url"
+	expected.SourceURL = "invalid-url"
 	expected.Language = "en"
 	expected.Category = "Travel"
-	expected.SiteName = "Example Travel Blog"
+	expected.SourceName = "Example Travel Blog"
 
 	expected.Socials = article.NewSocials(&article.Social{
 		Platform: "Twitter",
@@ -200,7 +200,7 @@ func TestArticleNormalize(t *testing.T) {
 	assert.Empty(t, expected.Videos.Slice())
 	assert.Empty(t, expected.Quotes.Slice())
 	assert.Empty(t, "", expected.Socials.Slice())
-	assert.Equal(t, "", expected.Source)
+	assert.Equal(t, "", expected.SourceURL)
 }
 
 func TestArticleNormalizeFieldClearing(t *testing.T) {
@@ -209,7 +209,7 @@ func TestArticleNormalizeFieldClearing(t *testing.T) {
 
 	// Set required fields with valid data
 	invalid.Title = gofakeit.Sentence(3)
-	invalid.HTML = gofakeit.Paragraph(1, 5, 10, " ")
+	invalid.Markup = gofakeit.Paragraph(1, 5, 10, " ")
 	invalid.Text = gofakeit.Paragraph(1, 5, 10, " ")
 	invalid.Published = time.Now()
 	invalid.Modified = time.Now()
@@ -217,11 +217,11 @@ func TestArticleNormalizeFieldClearing(t *testing.T) {
 	// Set invalid data for optional fields
 	invalid.ID = "invalid-uuid"
 	invalid.Summary = gofakeit.Name()
-	invalid.Excerpt = gofakeit.Sentence(10)
-	invalid.Source = "invalid-url"
+	invalid.Genre = gofakeit.Sentence(10)
+	invalid.SourceURL = "invalid-url"
 	invalid.Language = "english" // should be a valid ISO 639-1 language code
 	invalid.Category = gofakeit.Sentence(2)
-	invalid.SiteName = gofakeit.Sentence(2)
+	invalid.SourceName = gofakeit.Sentence(2)
 
 	valid := *invalid
 	(&valid).Normalize()
@@ -229,11 +229,11 @@ func TestArticleNormalizeFieldClearing(t *testing.T) {
 	// Verify that invalid fields are cleared
 	assert.Equal(t, "", valid.ID)
 	assert.Equal(t, invalid.Summary, valid.Summary) // should not be cleared since it's not required
-	assert.Equal(t, invalid.Excerpt, valid.Excerpt) // should not be cleared since it's not required
-	assert.Equal(t, "", valid.Source)
+	assert.Equal(t, invalid.Genre, valid.Genre)     // should not be cleared since it's not required
+	assert.Equal(t, "", valid.SourceURL)
 	assert.Equal(t, "english", valid.Language)
 	assert.Equal(t, invalid.Category, valid.Category)
-	assert.Equal(t, invalid.SiteName, valid.SiteName)
+	assert.Equal(t, invalid.SourceName, valid.SourceName)
 }
 
 // TestGetStringSlice tests the GetStringSlice function in case of empty map and missing key:
@@ -259,9 +259,9 @@ func TestUnmarshal(t *testing.T) {
 		  "id": "123e4567-e89b-12d3-a456-426614174000",
 		  "title": "The Rise of AI",
 		  "summary": "By John Doe",
-		  "html": "<p>Artificial Intelligence is transforming the world.</p>",
+		  "markup": "<p>Artificial Intelligence is transforming the world.</p>",
 		  "text": "Artificial Intelligence is transforming the world.",
-		  "excerpt": "An overview of how AI is changing various industries.",
+		  "genre": "An overview of how AI is changing various industries.",
 		  "published": "2024-05-27T10:00:00Z",
 		  "modified": "2024-05-28T12:00:00Z",
 		  "images": [
@@ -287,15 +287,15 @@ func TestUnmarshal(t *testing.T) {
 				"id": "quote-001",
 				"text": "AI is the future of technology.",
 				"author": "Jane Smith",
-				"source": "https://twitter.com/janesmith/status/123",
+				"source_url": "https://twitter.com/janesmith/status/123",
 				"platform": "Twitter"
 			  }
 		  ],
 		  "tags": ["AI", "Technology", "Future"],
-		  "source": "https://example.com",
+		  "source_url": "https://example.com",
 		  "language": "en",
 		  "category": "Technology",
-		  "site": "Tech News",
+		  "source_name": "Tech News",
 		  "socials": [
 			  {
 				"id": "sp-001",
@@ -314,9 +314,9 @@ func TestUnmarshal(t *testing.T) {
 	assert.Equal(t, "123e4567-e89b-12d3-a456-426614174000", art.ID)
 	assert.Equal(t, "The Rise of AI", art.Title)
 	assert.Equal(t, "By John Doe", art.Summary)
-	assert.Equal(t, "<p>Artificial Intelligence is transforming the world.</p>", art.HTML)
+	assert.Equal(t, "<p>Artificial Intelligence is transforming the world.</p>", art.Markup)
 	assert.Equal(t, "Artificial Intelligence is transforming the world.", art.Text)
-	assert.Equal(t, "An overview of how AI is changing various industries.", art.Excerpt)
+	assert.Equal(t, "An overview of how AI is changing various industries.", art.Genre)
 	assert.Equal(t, "2024-05-27T10:00:00Z", art.Published.Format(time.RFC3339))
 	assert.Equal(t, "2024-05-28T12:00:00Z", art.Modified.Format(time.RFC3339))
 

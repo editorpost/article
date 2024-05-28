@@ -13,10 +13,10 @@ import (
 
 func TestQuoteNormalize(t *testing.T) {
 	q := &article.Quote{
-		Text:     "  " + gofakeit.Sentence(15) + "  ",
-		Author:   "  " + gofakeit.Name() + "  ",
-		Source:   "  " + gofakeit.URL() + "  ",
-		Platform: "  " + gofakeit.Word() + "  ",
+		Text:      "  " + gofakeit.Sentence(15) + "  ",
+		Author:    "  " + gofakeit.Name() + "  ",
+		SourceURL: "  " + gofakeit.URL() + "  ",
+		Platform:  "  " + gofakeit.Word() + "  ",
 	}
 
 	q.Normalize()
@@ -24,7 +24,7 @@ func TestQuoteNormalize(t *testing.T) {
 	assert.NotEmpty(t, q.Text)
 	assert.Equal(t, strings.TrimSpace(q.Text), q.Text)
 	assert.Equal(t, strings.TrimSpace(q.Author), q.Author)
-	assert.Equal(t, strings.TrimSpace(q.Source), q.Source)
+	assert.Equal(t, strings.TrimSpace(q.SourceURL), q.SourceURL)
 	assert.Equal(t, strings.TrimSpace(q.Platform), q.Platform)
 }
 
@@ -33,7 +33,7 @@ func TestQuoteNormalize(t *testing.T) {
 //
 // Explanation of test cases:
 // - Valid Quote: Ensures that valid data is correctly converted into a Quote struct without errors.
-// - Invalid Source URL: Ensures that an invalid source URL triggers a validation error.
+// - Invalid SourceURL URL: Ensures that an invalid source URL triggers a validation error.
 // - Missing Required Fields: Ensures that missing mandatory fields trigger a validation error. Specifically, 'text', 'author', 'source', and 'platform' fields are required.
 // - Zero Value Fields: Ensures that empty field values are handled correctly and trigger a validation error.
 func TestQuoteConversions(t *testing.T) {
@@ -46,28 +46,28 @@ func TestQuoteConversions(t *testing.T) {
 		{
 			name: "Valid Quote",
 			inputMap: map[string]any{
-				"id":       "123e4567-e89b-12d3-a456-426614174000",
-				"text":     "This is a quote",
-				"author":   "John Doe",
-				"source":   "https://example.com",
-				"platform": "Twitter",
+				"id":         "123e4567-e89b-12d3-a456-426614174000",
+				"text":       "This is a quote",
+				"author":     "John Doe",
+				"source_url": "https://example.com",
+				"platform":   "Twitter",
 			},
 			expectedQuote: &article.Quote{
-				ID:       "123e4567-e89b-12d3-a456-426614174000",
-				Text:     "This is a quote",
-				Author:   "John Doe",
-				Source:   "https://example.com",
-				Platform: "Twitter",
+				ID:        "123e4567-e89b-12d3-a456-426614174000",
+				Text:      "This is a quote",
+				Author:    "John Doe",
+				SourceURL: "https://example.com",
+				Platform:  "Twitter",
 			},
 			expectError: false,
 		},
 		{
-			name: "Invalid Source URL",
+			name: "Invalid SourceURL URL",
 			inputMap: map[string]any{
-				"text":     "This is a quote",
-				"author":   "John Doe",
-				"source":   "invalid-url",
-				"platform": "Twitter",
+				"text":       "This is a quote",
+				"author":     "John Doe",
+				"source_url": "invalid-url",
+				"platform":   "Twitter",
 			},
 			expectedQuote: nil,
 			expectError:   true,
@@ -84,16 +84,16 @@ func TestQuoteConversions(t *testing.T) {
 		{
 			name: "Zero Value Fields",
 			inputMap: map[string]any{
-				"text":     "",
-				"author":   "",
-				"source":   "",
-				"platform": "",
+				"text":       "",
+				"author":     "",
+				"source_url": "",
+				"platform":   "",
 			},
 			expectedQuote: &article.Quote{
-				Text:     "",
-				Author:   "",
-				Source:   "",
-				Platform: "",
+				Text:      "",
+				Author:    "",
+				SourceURL: "",
+				Platform:  "",
 			},
 			expectError: true,
 		},

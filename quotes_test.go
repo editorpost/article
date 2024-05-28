@@ -10,11 +10,11 @@ import (
 
 func fakeQuote() *article.Quote {
 	return &article.Quote{
-		ID:       gofakeit.UUID(),
-		Text:     gofakeit.LoremIpsumSentence(10),
-		Author:   gofakeit.Name(),
-		Source:   gofakeit.URL(),
-		Platform: gofakeit.BuzzWord(),
+		ID:        gofakeit.UUID(),
+		Text:      gofakeit.LoremIpsumSentence(10),
+		Author:    gofakeit.Name(),
+		SourceURL: gofakeit.URL(),
+		Platform:  gofakeit.BuzzWord(),
 	}
 }
 

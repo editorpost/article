@@ -40,13 +40,13 @@ And Full example of JSON output or Article with nested structures:
  	"id": "string (required, uuid4, max=36)",
  	"title": "string (required, max=255)",
  	"summary": "string (max=255)",
- 	"html": "string (required, max=65000)",
+ 	"markup": "string (required, max=65000)",
  	"text": "string (required, max=65000)",
- 	"excerpt": "string (max=500)",
- 	"source": "string (omitempty, url, max=4096)",
+ 	"genre": "string (max=500)",
+ 	"source_url": "string (omitempty, url, max=4096)",
  	"language": "string (max=255)",
  	"category": "string (max=255)",
- 	"site": "string (max=255)",
+ 	"source_name": "string (max=255)",
  	"published": "time.Time (required)",
  	"modified": "time.Time",
  	"images": [
@@ -72,7 +72,7 @@ And Full example of JSON output or Article with nested structures:
  			"id": "string (required, uuid4, max=36)",
  			"text": "string (required, max=65000)",
  			"author": "string (max=255)",
- 			"source": "string (required, url, max=4096)",
+ 			"source_url": "string (required, url, max=4096)",
  			"platform": "string (max=255)"
  		}
  	],
@@ -165,7 +165,7 @@ Here is an example of a minimal invariant in JSON format:
 {
   "id": "123e4567-e89b-12d3-a456-426614174000",
   "title": "Sample Title",
-  "html": "This is the content of the article.",
+  "markup": "This is the content of the article.",
   "text": "This is the text content of the article.",
   "published": "2024-01-01T00:00:00Z"
 }

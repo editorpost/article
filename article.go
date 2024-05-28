@@ -19,13 +19,12 @@ func init() {
 // NewArticle creates a new Article with the provided data and returns a pointer to the Article.
 func NewArticle() *Article {
 	return &Article{
-		ID:       uuid.New().String(),
-		Language: "en",
-		Tags:     NewTags(),
-		Images:   NewImages(),
-		Videos:   NewVideos(),
-		Quotes:   NewQuotes(),
-		Socials:  NewSocials(),
+		ID:      uuid.New().String(),
+		Tags:    NewTags(),
+		Images:  NewImages(),
+		Videos:  NewVideos(),
+		Quotes:  NewQuotes(),
+		Socials: NewSocials(),
 	}
 }
 
@@ -33,16 +32,24 @@ func NewArticle() *Article {
 // This structure provides a flexible and universal foundation for storing and working with various types of content,
 // allowing for easy creation and modification of articles, as well as integration of media and social elements.
 type Article struct {
-	ID        string    `json:"id" validate:"required,uuid4,max=36"`
-	Title     string    `json:"title" validate:"required,max=255"`
-	Summary   string    `json:"summary" validate:"max=255"`
-	HTML      string    `json:"html" validate:"required,max=65000"`
-	Text      string    `json:"text" validate:"required,max=65000"`
-	Excerpt   string    `json:"excerpt" validate:"max=500"`
-	Source    string    `json:"source" validate:"omitempty,url,max=4096"`
-	Language  string    `json:"language" validate:"max=255"`
-	Category  string    `json:"category" validate:"max=255"`
-	SiteName  string    `json:"site" validate:"max=255"`
+	ID string `json:"id" validate:"required,uuid4,max=36"`
+	// Genre of the article, e.g. news, opinion, review.
+	Genre    string `json:"genre" validate:"max=500"`
+	Category string `json:"category" validate:"max=255"`
+	// Title of the article.
+	Title string `json:"title" validate:"required,max=255"`
+	// Summary is a short description of the article.
+	Summary string `json:"summary" validate:"max=500"`
+	// Markup is the raw HTML or Markdown content of the article.
+	Markup string `json:"markup" validate:"required,max=65000"`
+	// Text plain text content of the article.
+	Text string `json:"text" validate:"required,max=65000"`
+	// SourceURL is the URL of the article.
+	SourceURL string `json:"source_url" validate:"omitempty,url,max=4096"`
+	// SourceName is the web resource name of the source, e.g. Washington Post.
+	SourceName string `json:"source_name" validate:"max=255"`
+	Language   string `json:"language" validate:"max=255"`
+	// Published is the date and time when the article was published.
 	Published time.Time `json:"published" validate:"required"`
 	Modified  time.Time `json:"modified"`
 	Images    *Images   `json:"images"`
@@ -53,23 +60,38 @@ type Article struct {
 }
 
 // Normalize validates the Article and its nested structures, logs any validation errors, and clears invalid fields.
-func (a *Article) Normalize() {
+func (a *Article) Normalize() error {
 
 	a.ID = TrimToMaxLen(a.ID, 36)
 	a.Title = TrimToMaxLen(a.Title, 255)
-	a.Summary = TrimToMaxLen(a.Summary, 255)
-	a.HTML = TrimToMaxLen(a.HTML, 65000)
+	a.Summary = TrimToMaxLen(a.Summary, 500)
+	a.Markup = TrimToMaxLen(a.Markup, 65000)
 	a.Text = TrimToMaxLen(a.Text, 65000)
-	a.Excerpt = TrimToMaxLen(a.Excerpt, 500)
-	a.Source = TrimToMaxLen(a.Source, 4096)
+	a.Genre = TrimToMaxLen(a.Genre, 500)
+	a.SourceURL = TrimToMaxLen(a.SourceURL, 4096)
 	a.Language = TrimToMaxLen(a.Language, 255)
 	a.Category = TrimToMaxLen(a.Category, 255)
-	a.SiteName = TrimToMaxLen(a.SiteName, 255)
+	a.SourceName = TrimToMaxLen(a.SourceName, 255)
+
+	// fallback to English if language is not set
+	if len(a.Language) == 0 {
+		a.Language = "en"
+	}
+
+	// fallback date to now if not set
+	if a.Published.IsZero() {
+		a.Published = time.Now()
+	}
 
 	err := validate.Struct(a)
 	if err != nil {
+
 		for _, invalid := range err.(validator.ValidationErrors) {
 			slog.Debug("Validation error", slog.String("field", invalid.Namespace()), slog.String("error", invalid.Tag()))
+
+			if invalid.Tag() == "required" {
+				return err
+			}
 
 			// Clear invalid fields
 			switch invalid.Namespace() {
@@ -79,24 +101,24 @@ func (a *Article) Normalize() {
 				a.Title = ""
 			case "Article.Summary":
 				a.Summary = ""
-			case "Article.HTML":
-				a.HTML = ""
+			case "Article.Markup":
+				a.Markup = ""
 			case "Article.Text":
 				a.Text = ""
-			case "Article.Excerpt":
-				a.Excerpt = ""
+			case "Article.Genre":
+				a.Genre = ""
 			case "Article.Published":
 				a.Published = time.Time{}
 			case "Article.Modified":
 				a.Modified = time.Time{}
-			case "Article.Source":
-				a.Source = ""
+			case "Article.SourceURL":
+				a.SourceURL = ""
 			case "Article.Language":
 				a.Language = ""
 			case "Article.Category":
 				a.Category = ""
-			case "Article.SiteName":
-				a.SiteName = ""
+			case "Article.SourceName":
+				a.SourceName = ""
 			}
 		}
 	}
@@ -106,6 +128,8 @@ func (a *Article) Normalize() {
 	a.Videos.Normalize()
 	a.Quotes.Normalize()
 	a.Socials.Normalize()
+
+	return nil
 }
 
 // Map converts the Article struct to a map[string]any, including nested structures.
@@ -135,19 +159,19 @@ func (a *Article) Map() map[string]any {
 		"id":                              a.ID,
 		"title":                           a.Title,
 		"summary":                         a.Summary,
-		"html":                            a.HTML,
+		"markup":                          a.Markup,
 		"text":                            a.Text,
-		"excerpt":                         a.Excerpt,
+		"genre":                           a.Genre,
 		"images":                          images,
 		"videos":                          videos,
 		"quotes":                          quotes,
 		"published":                       a.Published,
 		"modified":                        a.Modified,
 		"tags":                            a.Tags.Slice(),
-		"source":                          a.Source,
+		"source_url":                      a.SourceURL,
 		"language":                        a.Language,
 		"category":                        a.Category,
-		"site":                            a.SiteName,
+		"source_name":                     a.SourceName,
 		"article__author_social_profiles": socialProfiles,
 	}
 }
@@ -195,23 +219,23 @@ func NewArticleFromMap(m map[string]any) (*Article, error) {
 	modifiedDate, _ := m["modified"].(time.Time)
 
 	article := &Article{
-		ID:        StringFromMap(m, "id"),
-		Title:     StringFromMap(m, "title"),
-		Summary:   StringFromMap(m, "summary"),
-		HTML:      StringFromMap(m, "html"),
-		Text:      StringFromMap(m, "text"),
-		Excerpt:   StringFromMap(m, "excerpt"),
-		Images:    images,
-		Videos:    videos,
-		Quotes:    quotes,
-		Published: publishDate,
-		Modified:  modifiedDate,
-		Tags:      NewTags(GetStringSlice(m, "tags")...),
-		Source:    StringFromMap(m, "source"),
-		Language:  StringFromMap(m, "language"),
-		Category:  StringFromMap(m, "category"),
-		SiteName:  StringFromMap(m, "site"),
-		Socials:   social,
+		ID:         StringFromMap(m, "id"),
+		Title:      StringFromMap(m, "title"),
+		Summary:    StringFromMap(m, "summary"),
+		Markup:     StringFromMap(m, "markup"),
+		Text:       StringFromMap(m, "text"),
+		Genre:      StringFromMap(m, "genre"),
+		Images:     images,
+		Videos:     videos,
+		Quotes:     quotes,
+		Published:  publishDate,
+		Modified:   modifiedDate,
+		Tags:       NewTags(GetStringSlice(m, "tags")...),
+		SourceURL:  StringFromMap(m, "source_url"),
+		Language:   StringFromMap(m, "language"),
+		Category:   StringFromMap(m, "category"),
+		SourceName: StringFromMap(m, "source_name"),
+		Socials:    social,
 	}
 
 	err := validate.Struct(article)

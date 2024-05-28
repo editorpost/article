@@ -9,9 +9,9 @@ import "encoding/json"
 //	ID          string    `json:"id" validate:"required,uuid4,max=36"`
 //	Title       string    `json:"title" validate:"required,max=255"`
 //	Summary      string    `json:"summary" validate:"max=255"`
-//	HTML        string    `json:"html" validate:"required,max=65000"`
+//	Markup        string    `json:"markup" validate:"required,max=65000"`
 //	Text string    `json:"text" validate:"required,max=65000"`
-//	Excerpt     string    `json:"excerpt" validate:"max=500"`
+//	Genre     string    `json:"genre" validate:"max=500"`
 //	Published   time.Time `json:"published" validate:"required"`
 //	Modified    time.Time `json:"modified"`
 //	Images      *Images   `json:"images"`
@@ -19,10 +19,10 @@ import "encoding/json"
 //	Quotes      *Quotes   `json:"quotes"`
 //	Tags        *Tags     `json:"tags"`
 //	Socials     *Socials  `json:"socials"`
-//	Source      string    `json:"source" validate:"omitempty,url,max=4096"`
+//	SourceURL      string    `json:"source_url" validate:"omitempty,url,max=4096"`
 //	Language    string    `json:"language" validate:"max=255"`
 //	Category    string    `json:"category" validate:"max=255"`
-//	SiteName    string    `json:"site" validate:"max=255"`
+//	SourceName    string    `json:"source_name" validate:"max=255"`
 //}
 
 type Articles struct {
