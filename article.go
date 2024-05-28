@@ -64,72 +64,12 @@ type Article struct {
 // Normalize validates the Article and its nested structures, logs any validation errors, and clears invalid fields.
 func (a *Article) Normalize() error {
 
-	a.ID = TrimToMaxLen(a.ID, 36)
-	a.Genre = TrimToMaxLen(a.Genre, 500)
-	a.Category = TrimToMaxLen(a.Category, 255)
-	a.Author = TrimToMaxLen(a.Author, 255)
-	a.Title = TrimToMaxLen(a.Title, 255)
-	a.Summary = TrimToMaxLen(a.Summary, 500)
-	a.Markup = TrimToMaxLen(a.Markup, 65000)
-	a.Text = TrimToMaxLen(a.Text, 65000)
-	a.SourceURL = TrimToMaxLen(a.SourceURL, 4096)
-	a.SourceName = TrimToMaxLen(a.SourceName, 255)
-	a.Language = TrimToMaxLen(a.Language, 255)
+	a.trimFields()
+	a.fallbackFields()
 
-	// fallback to English if language is not set
-	if len(a.Language) == 0 {
-		a.Language = "en"
-	}
-
-	// fallback date to now if not set
-	if a.Published.IsZero() {
-		a.Published = time.Now()
-	}
-
-	err := validate.Struct(a)
-	if err != nil {
-
-		var invalids validator.ValidationErrors
-		if !errors.As(err, &invalids) {
-			return err
-		}
-
-		for _, invalid := range invalids {
-
-			slog.Debug("Validation error", slog.String("field", invalid.Namespace()), slog.String("error", invalid.Tag()))
-
-			if invalid.Tag() == "required" {
-				return err
-			}
-
-			// Clear invalid fields
-			switch invalid.Namespace() {
-			case "Article.ID":
-				a.ID = ""
-			case "Article.Title":
-				a.Title = ""
-			case "Article.Summary":
-				a.Summary = ""
-			case "Article.Markup":
-				a.Markup = ""
-			case "Article.Text":
-				a.Text = ""
-			case "Article.Genre":
-				a.Genre = ""
-			case "Article.Published":
-				a.Published = time.Time{}
-			case "Article.Modified":
-				a.Modified = time.Time{}
-			case "Article.SourceURL":
-				a.SourceURL = ""
-			case "Article.Language":
-				a.Language = ""
-			case "Article.Category":
-				a.Category = ""
-			case "Article.SourceName":
-				a.SourceName = ""
-			}
-		}
+	// clear invalid fields
+	if err := a.normalizeFields(); err != nil {
+		return err
 	}
 
 	// Normalize nested structures
@@ -141,14 +81,92 @@ func (a *Article) Normalize() error {
 	return nil
 }
 
-func (a *Article) validate() error {
+func (a *Article) trimFields() {
+	a.ID = TrimToMaxLen(a.ID, 36)
+	a.Genre = TrimToMaxLen(a.Genre, 500)
+	a.Category = TrimToMaxLen(a.Category, 255)
+	a.Author = TrimToMaxLen(a.Author, 255)
+	a.Title = TrimToMaxLen(a.Title, 255)
+	a.Summary = TrimToMaxLen(a.Summary, 500)
+	a.Markup = TrimToMaxLen(a.Markup, 65000)
+	a.Text = TrimToMaxLen(a.Text, 65000)
+	a.SourceURL = TrimToMaxLen(a.SourceURL, 4096)
+	a.SourceName = TrimToMaxLen(a.SourceName, 255)
+	a.Language = TrimToMaxLen(a.Language, 255)
+}
 
-	err := validate.Struct(a)
-	if err != nil {
-		return err.(validator.ValidationErrors)
+func (a *Article) fallbackFields() {
+
+	// fallback to English if language is not set
+	if len(a.Language) == 0 {
+		a.Language = "en"
+	}
+
+	// fallback date to now if not set
+	if a.Published.IsZero() {
+		a.Published = time.Now()
+	}
+}
+
+func (a *Article) normalizeFields() (err error) {
+
+	if err = a.Validate(); err == nil {
+		// no errors
+		return nil
+	}
+
+	var invalids validator.ValidationErrors
+	if !errors.As(err, &invalids) {
+		// not a validation error
+		return err
+	}
+
+	for _, invalid := range invalids {
+
+		slog.Debug("Validation error", slog.String("field", invalid.Namespace()), slog.String("error", invalid.Tag()))
+
+		if invalid.Tag() == "required" {
+			return err
+		}
+
+		// Clear invalid fields
+		a.resetField(invalid.Namespace())
 	}
 
 	return nil
+}
+
+func (a *Article) resetField(name string) {
+	switch name {
+	case "Article.ID":
+		a.ID = ""
+	case "Article.Title":
+		a.Title = ""
+	case "Article.Summary":
+		a.Summary = ""
+	case "Article.Markup":
+		a.Markup = ""
+	case "Article.Text":
+		a.Text = ""
+	case "Article.Genre":
+		a.Genre = ""
+	case "Article.Published":
+		a.Published = time.Time{}
+	case "Article.Modified":
+		a.Modified = time.Time{}
+	case "Article.SourceURL":
+		a.SourceURL = ""
+	case "Article.Language":
+		a.Language = ""
+	case "Article.Category":
+		a.Category = ""
+	case "Article.SourceName":
+		a.SourceName = ""
+	}
+}
+
+func (a *Article) Validate() error {
+	return validate.Struct(a)
 }
 
 // Map converts the Article struct to a map[string]any, including nested structures.

@@ -28,6 +28,9 @@ func TestFromHTML(t *testing.T) {
 	assert.Equal(t, "Пхукет в стиле вашего отдыха", a.Title)
 	assert.Equal(t, "https://thailand-news.ru/news/puteshestviya/pkhuket-v-stile-vashego-otdykha/", a.SourceURL)
 	assert.Equal(t, "", a.SourceName)
+
+	// validation
+	assert.NoError(t, a.Normalize())
 }
 
 func TestDistiller(t *testing.T) {
