@@ -97,12 +97,22 @@ func (a *Article) trimFields() {
 
 func (a *Article) fallbackFields() {
 
-	// fallback to English if language is not set
-	if len(a.Language) == 0 {
+	// language: english
+	if a.Language == "" {
 		a.Language = "en"
 	}
 
-	// fallback date to now if not set
+	// category: general
+	if a.Category == "" {
+		a.Category = "General"
+	}
+
+	// genre: article
+	if a.Genre == "" {
+		a.Genre = "Article"
+	}
+
+	// published: now
 	if a.Published.IsZero() {
 		a.Published = time.Now()
 	}
