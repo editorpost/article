@@ -37,6 +37,7 @@ type Article struct {
 	// Genre of the article, e.g. news, opinion, review.
 	Genre    string `json:"genre" validate:"max=500"`
 	Category string `json:"category" validate:"max=255"`
+	Author   string `json:"author" validate:"max=255"`
 	// Title of the article.
 	Title string `json:"title" validate:"required,max=255"`
 	// Summary is a short description of the article.
@@ -64,15 +65,16 @@ type Article struct {
 func (a *Article) Normalize() error {
 
 	a.ID = TrimToMaxLen(a.ID, 36)
+	a.Genre = TrimToMaxLen(a.Genre, 500)
+	a.Category = TrimToMaxLen(a.Category, 255)
+	a.Author = TrimToMaxLen(a.Author, 255)
 	a.Title = TrimToMaxLen(a.Title, 255)
 	a.Summary = TrimToMaxLen(a.Summary, 500)
 	a.Markup = TrimToMaxLen(a.Markup, 65000)
 	a.Text = TrimToMaxLen(a.Text, 65000)
-	a.Genre = TrimToMaxLen(a.Genre, 500)
 	a.SourceURL = TrimToMaxLen(a.SourceURL, 4096)
-	a.Language = TrimToMaxLen(a.Language, 255)
-	a.Category = TrimToMaxLen(a.Category, 255)
 	a.SourceName = TrimToMaxLen(a.SourceName, 255)
+	a.Language = TrimToMaxLen(a.Language, 255)
 
 	// fallback to English if language is not set
 	if len(a.Language) == 0 {

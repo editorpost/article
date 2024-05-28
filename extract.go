@@ -43,11 +43,12 @@ func FromHTML(html string, resource *url.URL) (*Article, error) {
 	// readability: title, summary, text, html, language
 	readabilityArticle(html, resource, a)
 
-	// distiller: category, images, source name
+	// distiller: category, images, source name, author
 	distillArticle(html, resource, a)
 
 	// fallback: published
-	a.Published = lo.Ternary(a.Published.IsZero(), fallbackPublished(html), a.Published)
+	a.Published = lo.Ternary(a.Published.IsZero(), legacyPublished(html), a.Published)
+	a.Author = lo.Ternary(a.Author == "", legacyAuthor(html), a.Author)
 
 	// nil article if it's invalid
 	if err := a.Normalize(); err != nil {
@@ -66,10 +67,11 @@ func readabilityArticle(html string, resource *url.URL, a *Article) {
 
 	// set the article fields
 	a.Title = read.Title
-	a.Summary = read.Excerpt
 	a.Text = read.TextContent
 	a.Language = read.Language
+	a.Summary = lo.Ternary(len(read.Byline) > 0, read.Byline, read.Excerpt)
 
+	// fallback fields applied only if the fields are empty
 	a.Title = lo.Ternary(a.Title == "", read.Title, a.Title)
 	a.Summary = lo.Ternary(a.Summary == "", read.Excerpt, a.Summary)
 	a.Text = lo.Ternary(a.Text == "", read.TextContent, a.Text)
@@ -97,6 +99,7 @@ func distillArticle(html string, resource *url.URL, a *Article) {
 	a.Category = info.Article.Section
 	a.SourceName = info.Publisher
 	a.Images = distillImages(distill, resource)
+	a.Author = info.Author
 
 	// fallback fields applied only if the fields are empty
 	a.Title = lo.Ternary(a.Title == "", distill.Title, a.Title)
@@ -128,7 +131,7 @@ func distillImages(distill *distiller.Result, resource *url.URL) *Images {
 	return images
 }
 
-func fallbackPublished(html string) time.Time {
+func legacyPublished(html string) time.Time {
 
 	fallback := time.Now()
 
@@ -145,6 +148,24 @@ func fallbackPublished(html string) time.Time {
 	}
 
 	return fallback
+}
+
+func legacyAuthor(html string) (name string) {
+
+	q, readerErr := goquery.NewDocumentFromReader(strings.NewReader(html))
+	if readerErr != nil {
+		return
+	}
+
+	// look at publisher info
+	for _, node := range q.Find(".node-article__date").Nodes {
+		if node.FirstChild != nil {
+			name = strings.TrimSpace(node.FirstChild.Data)
+			return
+		}
+	}
+
+	return
 }
 
 func AbsoluteUrl(base *url.URL, href string) string {
