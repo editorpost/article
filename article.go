@@ -203,23 +203,23 @@ func (a *Article) Map() map[string]any {
 	}
 
 	return map[string]any{
-		"id":                              a.ID,
-		"title":                           a.Title,
-		"summary":                         a.Summary,
-		"markup":                          a.Markup,
-		"text":                            a.Text,
-		"genre":                           a.Genre,
-		"images":                          images,
-		"videos":                          videos,
-		"quotes":                          quotes,
-		"published":                       a.Published,
-		"modified":                        a.Modified,
-		"tags":                            a.Tags.Slice(),
-		"source_url":                      a.SourceURL,
-		"language":                        a.Language,
-		"category":                        a.Category,
-		"source_name":                     a.SourceName,
-		"article__author_social_profiles": socialProfiles,
+		"id":          a.ID,
+		"title":       a.Title,
+		"summary":     a.Summary,
+		"markup":      a.Markup,
+		"text":        a.Text,
+		"genre":       a.Genre,
+		"images":      images,
+		"videos":      videos,
+		"quotes":      quotes,
+		"published":   a.Published,
+		"modified":    a.Modified,
+		"tags":        a.Tags.Slice(),
+		"source_url":  a.SourceURL,
+		"language":    a.Language,
+		"category":    a.Category,
+		"source_name": a.SourceName,
+		"socials":     socialProfiles,
 	}
 }
 
@@ -254,7 +254,7 @@ func NewArticleFromMap(m map[string]any) (*Article, error) {
 	}
 
 	social := NewSocials()
-	if profileMaps, ok := m["article__author_social_profiles"].([]map[string]any); ok {
+	if profileMaps, ok := m["socials"].([]map[string]any); ok {
 		for _, profileMap := range profileMaps {
 			if profile, err := NewSocialProfileFromMap(profileMap); err == nil {
 				social.Add(profile)
