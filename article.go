@@ -1,6 +1,7 @@
 package article
 
 import (
+	"errors"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"log/slog"
@@ -86,7 +87,13 @@ func (a *Article) Normalize() error {
 	err := validate.Struct(a)
 	if err != nil {
 
-		for _, invalid := range err.(validator.ValidationErrors) {
+		var invalids validator.ValidationErrors
+		if !errors.As(err, &invalids) {
+			return err
+		}
+
+		for _, invalid := range invalids {
+
 			slog.Debug("Validation error", slog.String("field", invalid.Namespace()), slog.String("error", invalid.Tag()))
 
 			if invalid.Tag() == "required" {
@@ -128,6 +135,16 @@ func (a *Article) Normalize() error {
 	a.Videos.Normalize()
 	a.Quotes.Normalize()
 	a.Socials.Normalize()
+
+	return nil
+}
+
+func (a *Article) validate() error {
+
+	err := validate.Struct(a)
+	if err != nil {
+		return err.(validator.ValidationErrors)
+	}
 
 	return nil
 }

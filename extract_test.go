@@ -22,7 +22,12 @@ func TestFromHTML(t *testing.T) {
 	a, err := article.FromHTML(GetArticleHTML(t), GetArticleURL(t))
 	require.NoError(t, err)
 
+	// custom fallback with css selector
+	assert.Equal(t, "2024-05-28", a.Published.Format("2006-01-02"))
+
 	assert.Equal(t, "Пхукет в стиле вашего отдыха", a.Title)
+	assert.Equal(t, "https://thailand-news.ru/news/puteshestviya/pkhuket-v-stile-vashego-otdykha/", a.SourceURL)
+	assert.Equal(t, "", a.SourceName)
 }
 
 func TestDistiller(t *testing.T) {
