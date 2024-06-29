@@ -80,6 +80,11 @@ func (list *Images) Add(images ...*Image) *Images {
 
 // Remove removes items by ID
 func (list *Images) Remove(ids ...string) *Images {
+
+	if len(ids) == 0 {
+		return list
+	}
+
 	idSet := make(map[string]struct{}, len(ids))
 	for _, id := range ids {
 		idSet[id] = struct{}{}
@@ -126,6 +131,35 @@ func (list *Images) Filter(fns ...func(*Image) bool) *Images {
 		}
 	}
 	return &Images{items: filteredImages}
+}
+
+// ReplaceURLs replaces the URLs of the Images from the provided map.
+// Returns a slice of image IDs that failed to be replaced.
+func (list *Images) ReplaceURLs(m map[string]string) []string {
+
+	failed := make([]string, 0)
+
+	for _, img := range list.Slice() {
+
+		url, exists := m[img.URL]
+
+		if exists {
+			img.URL = url
+			continue
+		}
+
+		failed = append(failed, img.ID)
+	}
+
+	return failed
+}
+
+// ReplaceOrRemoveURLs replaces the URLs of the Images from the provided map.
+// If an image URL is not found in the map, the image is removed from the Images collection.
+func (list *Images) ReplaceOrRemoveURLs(m map[string]string) []string {
+	failed := list.ReplaceURLs(m)
+	list.Remove(failed...)
+	return failed
 }
 
 // UnmarshalJSON to array of items using encoding/json

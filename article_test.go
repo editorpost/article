@@ -2,6 +2,7 @@ package article_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 	"time"
 
@@ -10,6 +11,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/editorpost/article"
+
+	"github.com/samber/lo"
 )
 
 func init() {
@@ -326,4 +329,132 @@ func TestUnmarshal(t *testing.T) {
 	assert.Equal(t, 1, art.Quotes.Len())
 	assert.Equal(t, 1, art.Socials.Len())
 	assert.Equal(t, 3, art.Tags.Len())
+}
+
+func TestArticle_ReplaceURLs_Empty(t *testing.T) {
+
+	a := article.NewArticle()
+	count := 2
+	WithImages(a, GenerateURLs("example.com", count)...)
+
+	// empty map
+	failed := a.ReplaceURLs(map[string]string{})
+	// all images ids as failed to replace
+	assert.Equal(t, count, len(failed))
+	// no images removed
+	assert.Equal(t, count, a.Images.Len())
+
+	// remove failed to replace
+	failed = a.ReplaceOrRemoveURLs(map[string]string{})
+	assert.Equal(t, count, len(failed))
+	// all images removed
+	assert.Zero(t, a.Images.Len())
+}
+
+func TestArticle_ReplaceURLs_All(t *testing.T) {
+
+	count := 5
+	replace := ReplacementURLs(count)
+	src := lo.Keys(replace)
+
+	a := article.NewArticle()
+	WithImages(a, src...)
+
+	failed := a.ReplaceURLs(replace)
+	// no images ids as failed to replace
+	assert.Zero(t, 0, len(failed))
+	// no images removed
+	assert.Equal(t, count, a.Images.Len())
+}
+
+func TestArticle_ReplaceOrRemoveURLs_All(t *testing.T) {
+
+	count := 5
+	replace := ReplacementURLs(count)
+	src := lo.Keys(replace)
+
+	a := article.NewArticle()
+	WithImages(a, src...)
+
+	// remove all images
+	failed := a.ReplaceOrRemoveURLs(replace)
+	assert.Zero(t, 0, len(failed))
+	// no images removed
+	assert.Equal(t, count, a.Images.Len())
+}
+
+func TestArticle_ReplaceURLs_Partial(t *testing.T) {
+
+	count := 5
+	replace := ReplacementURLs(count)
+	src := lo.Keys(replace)
+
+	a := article.NewArticle()
+	WithImages(a, src...)
+
+	// remove some urls
+	for i := 0; i < count/2; i++ {
+		delete(replace, src[i])
+	}
+
+	failed := a.ReplaceURLs(replace)
+	// some images ids as failed to replace
+	assert.Equal(t, count/2, len(failed))
+	// no images removed
+	assert.Equal(t, count, a.Images.Len())
+}
+
+func TestArticle_ReplaceOrRemoveURLs_Partial(t *testing.T) {
+
+	count := 5
+	replace := ReplacementURLs(count)
+	src := lo.Keys(replace)
+
+	a := article.NewArticle()
+	WithImages(a, src...)
+
+	// remove some urls
+	for i := 0; i < count/2; i++ {
+		delete(replace, src[i])
+	}
+
+	failed := a.ReplaceOrRemoveURLs(replace)
+	// some images ids as failed to replace
+	assert.Equal(t, count/2, len(failed))
+	// failed images removed
+	assert.Equal(t, count-(len(failed)), a.Images.Len())
+}
+
+func WithImages(a *article.Article, urls ...string) {
+	for _, u := range urls {
+		a.Images.Add(&article.Image{
+			ID:     gofakeit.UUID(),
+			URL:    u,
+			Alt:    gofakeit.Sentence(5),
+			Width:  gofakeit.Number(800, 1920),
+			Height: gofakeit.Number(600, 1080),
+			Title:  gofakeit.Sentence(10),
+		})
+	}
+}
+
+func GenerateURLs(domain string, count int) []string {
+	urls := make([]string, count)
+	for i := 0; i < count; i++ {
+		urls[i] = fmt.Sprintf("https://%s/images/%s.jpg", domain, gofakeit.UUID())
+	}
+	return urls
+}
+
+func ReplacementURLs(count int) map[string]string {
+
+	old := GenerateURLs("old.com", count)
+	news := GenerateURLs("new.com", count)
+
+	replace := make(map[string]string)
+	for i, url := range old {
+		replace[url] = news[i]
+	}
+
+	return replace
 }

@@ -293,6 +293,20 @@ func NewArticleFromMap(m map[string]any) (*Article, error) {
 	return article, nil
 }
 
+// ReplaceURLs replaces the URLs in the Article and related structs with the URLs from the provided map.
+func (a *Article) ReplaceURLs(m map[string]string) []string {
+
+	remove := a.Images.ReplaceURLs(m)
+
+	return remove
+}
+
+// ReplaceURLs replaces the URLs in the Article and related structs with the URLs from the provided map.
+func (a *Article) ReplaceOrRemoveURLs(m map[string]string) []string {
+	remove := a.Images.ReplaceOrRemoveURLs(m)
+	return remove
+}
+
 // GetStringSlice safely extracts a slice of strings from the map or returns a zero value.
 func GetStringSlice(m map[string]any, key string) []string {
 	if value, ok := m[key]; ok {
