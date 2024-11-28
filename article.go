@@ -160,6 +160,8 @@ func (a *Article) resetField(name string) {
 		a.Text = ""
 	case "Article.Genre":
 		a.Genre = ""
+	case "Article.Author":
+		a.Author = ""
 	case "Article.Published":
 		a.Published = time.Time{}
 	case "Article.Modified":
@@ -212,6 +214,7 @@ func (a *Article) Map() map[string]any {
 		"images":      images,
 		"videos":      videos,
 		"quotes":      quotes,
+		"author":      a.Author,
 		"published":   a.Published,
 		"modified":    a.Modified,
 		"tags":        a.Tags.Slice(),
