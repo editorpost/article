@@ -33,7 +33,7 @@ func NewArticle() *Article {
 // This structure provides a flexible and universal foundation for storing and working with various types of content,
 // allowing for easy creation and modification of articles, as well as integration of media and social elements.
 type Article struct {
-	ID string `json:"id" validate:"required,uuid4,max=36"`
+	ID string `json:"id" validate:"required,uuid"`
 	// Genre of the article, e.g. news, opinion, review.
 	Genre    string `json:"genre" validate:"max=500"`
 	Category string `json:"category" validate:"max=255"`
